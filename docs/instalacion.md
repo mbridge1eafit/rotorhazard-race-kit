@@ -32,14 +32,23 @@ No necesitas instalar programas: Windows 10/11, macOS y Linux ya traen lo necesa
 
 ## 2. Descarga el kit
 
-La forma más fácil, sin instalar nada:
+Elige **una** de estas dos formas; las dos dejan lo mismo en tu computador.
+
+**Opción A — ZIP (recomendada si no usas git)**
 
 1. Abre <https://github.com/mbridge1eafit/rotorhazard-race-kit>.
 2. Botón verde **Code** → **Download ZIP**.
-3. Descomprime el ZIP en una carpeta fácil de encontrar, por ejemplo `Documentos\rotorhazard-race-kit`.
-   En Windows: clic derecho sobre el ZIP → **Extraer todo**.
+3. Descomprime el ZIP (en Windows: clic derecho → **Extraer todo**). Queda una carpeta llamada
+   `rotorhazard-race-kit-main`. Si al abrirla hay otra carpeta con el mismo nombre, entra en esa: la carpeta del
+   kit es la que tiene adentro `README.md`, `funciones` y `scripts`.
 
-Si usas git: `git clone https://github.com/mbridge1eafit/rotorhazard-race-kit`.
+**Opción B — git (si ya lo tienes instalado)**
+
+```
+git clone https://github.com/mbridge1eafit/rotorhazard-race-kit
+```
+
+Crea la carpeta `rotorhazard-race-kit`. Con git, para actualizar después basta `git pull` dentro de esa carpeta.
 
 ## 3. Abre una terminal en esa carpeta
 
@@ -51,7 +60,7 @@ tiene `README.md`, `funciones` y `scripts`).
 1. Abre la carpeta en el Explorador de archivos.
 2. Haz clic en la barra de direcciones (arriba, donde sale la ruta), borra lo que hay, escribe `powershell` y
    pulsa **Enter**.
-3. Se abre una ventana azul o negra que termina en algo como `PS C:\Users\tu\Documents\rotorhazard-race-kit>`.
+3. Se abre una ventana azul o negra que termina en algo como `PS C:\Users\tu\Downloads\rotorhazard-race-kit-main>`.
 
 **macOS**
 
