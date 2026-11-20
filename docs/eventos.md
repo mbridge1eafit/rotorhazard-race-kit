@@ -1,24 +1,14 @@
-# Armar el evento: puntos, round robin, finales y orden de heats
+# Armar el evento: round robin, finales y orden de heats
 
 Recetas con los plugins de este repo, sacadas del evento original (19 pilotos, 4 canales: clasificación
 el domingo, round robin Pro y Sport y finales Chase the Ace el lunes).
 
-## Puntos según el tamaño del heat (`points_by_heat_size`)
+## Puntos y ranking de la clase
 
-Cuando los heats no tienen todos el mismo número de pilotos, la tabla de puntos cambia según cuántos hay.
-
-1. **Ajustes → Points by Heat Size**:
-   - *Points, heat of 4+ pilots*: `10,9,8,5`
-   - *Points, heat of 3 or fewer pilots*: `10,8,5`
-   - *Laps to finish*: vueltas para terminar la carrera (p. ej. `3` en "primero en 3 vueltas"). Quien tenga menos
-     es DNF y recibe 0. `0` apaga la regla.
-2. En el **formato** de carrera, *Points method* = **Points by Heat Size**.
-3. En la **clase**, un ranking que sume puntos: *Chase the Ace (Points + Wins + Last Race)* desempata por
-   victorias y luego por el puesto en la última carrera.
-
-Los pilotos con 0 vueltas se ordenan por el tiempo de su primer cruce (holeshot); los que ni cruzaron van al final.
-
-Ejemplo del lunes: heats de 3, puntos `3,2,1`, 0 para el DNF (`pbhs_points_3=3,2,1`, `pbhs_finish_laps=3`).
+Para que la tabla de posiciones muestre puntos, usa en el **formato** de carrera un método de puntos de
+RotorHazard (p. ej. por posición, `3,2,1`) y en la **clase** un ranking que los sume. El ranking
+*Chase the Ace (Points + Wins + Last Race)* de `chase_the_ace_rank` suma los puntos, desempata por victorias
+y luego por el puesto en la última carrera; los pilotos con 0 vueltas se ordenan por su primer cruce (holeshot).
 
 ## Round robin con heats de 3 o 4
 

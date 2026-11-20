@@ -76,7 +76,7 @@ como plugins.
 ## Configurar sin la interfaz web
 
 - Opciones de `obs_auto_escena`: `config.json` sección `OBS_AUTO_ESCENA` (con el MCP: `rh_set_config`, en caliente).
-- Opciones de la base del evento (`pbhs_*`, `oh_*`): `rh_set_option`.
+- Opciones de la base del evento (`oh_*`): `rh_set_option`.
 - Ajustes del ranking Chase the Ace: van en `rank_settings` de la clase (`rh_update_class`), p. ej.
   `{"wins": "2", "finish_laps": "0", "ironman": ""}`, con `win_condition = "multigp_chase_the_ace"`.
 
@@ -98,7 +98,7 @@ OBS real y una carrera de prueba (staging → detener → guardar, y otra con de
 ## Convenciones
 
 - Textos de la interfaz en español en los plugins `obs_auto_escena` y `orden_heats`; en inglés en
-  `chase_the_ace_rank` y `points_by_heat_size` (así salieron; no los mezcles dentro de un mismo plugin).
+  `chase_the_ace_rank` (así salieron; no los mezcles dentro de un mismo plugin).
 - Sin valores del evento original en el código (IPs, nombres de escenas o de clases): todo va en opciones o en la URL.
 - Al cambiar un plugin, sube `version` en su `manifest.json` y actualiza `docs/plugins.md`.
 - Nada de dependencias nuevas en los plugins: el entorno de RotorHazard en la Pi solo trae lo suyo

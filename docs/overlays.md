@@ -52,7 +52,7 @@ Se combinan con `&`: `.../posiciones?clases=2,3&titulos=PRO,SPORT&lang=en`.
 | `zona` | `4` | cuántos quedan resaltados como "zona de final"; `0` la quita |
 | `paleta` | naranja, azul, verde | degradado por columna: `paleta=ffb321-ff6a3d,2bb5f5-6a5cff` |
 
-El ranking es el de la clase en RotorHazard (con `points_by_heat_size` y el ranking *Chase the Ace
+El ranking es el de la clase en RotorHazard (con un formato que dé puntos y el ranking *Chase the Ace
 (Points + Wins + Last Race)* salen puntos y victorias). Los pilotos que todavía no corren salen con "—".
 
 **Chase the Ace** (`chase`)

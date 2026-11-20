@@ -2,7 +2,7 @@
 
 Plugins, overlays para OBS, scripts y un servidor MCP para correr un evento de drones FPV con
 [RotorHazard](https://github.com/RotorHazard/RotorHazard): OBS cambia de escena y graba solo, hay
-overlays de resultados y posiciones, puntos por tamaño de heat, finales **Chase the Ace con el
+overlays de resultados y posiciones, finales **Chase the Ace con el
 reglamento MultiGP 2026**, heats intercalados entre clases y un asistente de IA que administra el timer.
 
 Salió de un evento real de tres días (clasificación, round robin Pro/Sport y finales) y se dejó
@@ -17,7 +17,6 @@ parametrizable para que cualquiera lo use en su timer.
 | [`plugins/obs_auto_escena`](plugins/obs_auto_escena) | Cambia la escena de OBS al iniciar y terminar cada carrera, y graba un DVR por carrera. OBS en **Windows, macOS o Linux**. |
 | [`plugins/skr_overlays`](plugins/skr_overlays) | Overlays para OBS: última carrera con tiempos por vuelta, posiciones de varias clases lado a lado, tabla de la final Chase the Ace y podio animado. Español e inglés. |
 | [`plugins/chase_the_ace_rank`](plugins/chase_the_ace_rank) | Ranking de clase **MultiGP Chase the Ace** según *2026 MultiGP Rules & Regulations* 7.9.2 (Aces, carreras nulas, suma de puestos, desempate motocross, cláusula Ironman). |
-| [`plugins/points_by_heat_size`](plugins/points_by_heat_size) | Puntos que dependen de cuántos pilotos hay en el heat (p. ej. 10-9-8-5 en heats de 4 y 10-8-5 en heats de 3) y regla de DNF. |
 | [`plugins/orden_heats`](plugins/orden_heats) | Corre heats de clases distintas en una secuencia fija (Sport 1, Pro 1, Sport 2…) y la puede generar sola. |
 | [`plugins/option_numeric_fix`](plugins/option_numeric_fix) | Arreglo para RotorHazard **4.5.1**: la página Marshal no aplicaba la vuelta mínima. |
 | [`obs/`](obs) | Script de OBS para el DVR de las carreras descartadas, CSS para los overlays de Stream Overlays y un cliente de obs-websocket. |
@@ -76,7 +75,7 @@ for AI agents, built for and tested at a real three-day FPV event:
 - `obs_auto_escena`: switches the OBS program scene when a race is staged and when laps are saved, and records one DVR file per race. OBS can run on Windows, macOS or Linux. Discarded races can be kept, moved, sent to the trash or deleted by a companion OBS Lua script.
 - `skr_overlays`: OBS browser-source pages (1920×1080, transparent) for the last race with lap times, standings of several classes side by side, the Chase the Ace final table and an animated podium. Language (`?lang=en`), colors, titles and classes are set in the URL.
 - `chase_the_ace_rank`: a class ranking that follows the 2026 MultiGP Rules & Regulations 7.9.2. First to two Aces (a win with all laps completed); a race where nobody completes the laps is void; the rest of the podium goes by lowest sum of positions with a motocross tie-break; the Ironman clause is optional. Settings are per class.
-- `points_by_heat_size`, `orden_heats` (interleave heats across classes) and `option_numeric_fix` (RotorHazard 4.5.1 Marshal min-lap bug).
+- `orden_heats` (interleave heats across classes) and `option_numeric_fix` (RotorHazard 4.5.1 Marshal min-lap bug).
 - `mcp-server`: an MCP server with 80+ tools to run the timer from Claude Code or any MCP client.
 - `herramientas/espectro`: a spectrum scan using the timer's own receivers to pick clean channels.
 

@@ -26,7 +26,6 @@ Todos los plugins son independientes. Instala solo los que vas a usar:
 | `obs_auto_escena` | usas OBS y quieres que cambie de escena o grabe solo |
 | `skr_overlays` | quieres los overlays de última carrera, posiciones, Chase the Ace o podio |
 | `chase_the_ace_rank` | tu final es Chase the Ace (MultiGP) |
-| `points_by_heat_size` | tus heats tienen distinto número de pilotos y quieres puntos según eso |
 | `orden_heats` | quieres alternar heats de dos o más clases |
 | `option_numeric_fix` | usas **RotorHazard 4.5.1** y la página Marshal (no hace falta en otras versiones si ya está corregido) |
 

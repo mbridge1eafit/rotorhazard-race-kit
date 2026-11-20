@@ -7,7 +7,6 @@ Dónde se configura cada uno y dónde guarda su configuración.
 | `obs_auto_escena` | 2.0.0 | OBS: cambio automático de escena | `config.json` → `OBS_AUTO_ESCENA` (sobrevive a cambios de evento) |
 | `skr_overlays` | 2.0.0 | — (se configura con la URL) | — |
 | `chase_the_ace_rank` | 2.0.0 | en cada clase, ajustes del ranking | la clase (`rank_settings`) |
-| `points_by_heat_size` | 1.3.0 | Points by Heat Size | base del evento (opciones `pbhs_*`) |
 | `orden_heats` | 1.1.0 | Orden de heats entre clases | base del evento (opciones `oh_*`) |
 | `option_numeric_fix` | 1.0.0 | — | — |
 
@@ -50,11 +49,6 @@ Rankings de clase:
 
 Al guardar una carrera de una clase con el ranking MultiGP, avisa en la interfaz cómo va la final.
 Pruebas: `python tests/test_chase_the_ace.py`.
-
-## points_by_heat_size
-
-Método de puntos *Points by Heat Size*. Opciones: `pbhs_points_4` (`10,9,8,5`, heats de 4 o más),
-`pbhs_points_3` (`10,8,5`, heats de 3 o menos), `pbhs_finish_laps` (0 = sin regla de DNF).
 
 ## orden_heats
 
