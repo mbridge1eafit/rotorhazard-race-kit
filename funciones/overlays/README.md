@@ -1,6 +1,6 @@
 # Overlays para OBS (`skr_overlays`)
 
-> Overlays propios para la transmisión: piloto en vivo sobre cada video, próximo heat, última carrera, posiciones, Chase the Ace y podio.
+> Overlays propios para la transmisión: carrera en vivo sobre los videos, próximo heat con resultado anterior, posiciones, Chase the Ace y podio de cualquier clase.
 
 Páginas de 1920×1080 con fondo transparente que se ponen en OBS como **fuente de navegador**. Es un solo
 plugin y **no depende de ningún otro**: lee la carrera en curso y la base de datos de RotorHazard directamente
@@ -9,10 +9,11 @@ plugin y **no depende de ningún otro**: lee la carrera en curso y la base de da
 ## Instalar
 
 ```bash
-./scripts/instalar.sh pi@IP-DE-LA-PI overlays
+bash scripts/instalar.sh pi@IP-DE-LA-PI overlays
 ```
 
-En Windows: `.\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones overlays`. O copia la carpeta
+En Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones overlays`.
+Paso a paso, qué ejecutar y dónde: [docs/instalacion.md](../../docs/instalacion.md). O copia la carpeta
 `skr_overlays` a `~/rh-data/plugins/` de la Pi y reinicia RotorHazard. Prueba abriendo en el navegador
 `http://IP-DE-LA-PI:5000/skr/proximo-heat`.
 

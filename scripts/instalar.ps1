@@ -1,6 +1,8 @@
 ﻿<#
 .SYNOPSIS
   Instala en la Raspberry Pi de RotorHazard las funciones que elijas y reinicia el servidor (Windows).
+  Se ejecuta en TU computador (no en la Pi), en PowerShell abierto en la carpeta del kit. Guía: docs\instalacion.md
+  Si Windows no deja ejecutar scripts: powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 ...
 
 .EXAMPLE
   .\scripts\instalar.ps1                                             # lista las funciones disponibles

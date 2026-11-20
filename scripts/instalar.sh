@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Instala en la Raspberry Pi de RotorHazard las funciones que elijas y reinicia el servidor.
+# Se ejecuta en TU computador (no en la Pi), desde la carpeta del kit. Guía: docs/instalacion.md
 # macOS / Linux (en Windows usa instalar.ps1).
 #
 # Uso:
-#   ./scripts/instalar.sh                                         # lista las funciones disponibles
-#   ./scripts/instalar.sh pi@192.168.1.20 overlays chase-the-ace  # solo esas funciones
-#   ./scripts/instalar.sh pi@192.168.1.20 todas                   # todas
-#   NO_RESTART=1 ./scripts/instalar.sh pi@192.168.1.20 overlays   # sin reiniciar
-#   DRY_RUN=1 ./scripts/instalar.sh pi@192.168.1.20 todas          # solo muestra qué instalaría
+#   bash scripts/instalar.sh                                         # lista las funciones disponibles
+#   bash scripts/instalar.sh pi@192.168.1.20 overlays chase-the-ace  # solo esas funciones
+#   bash scripts/instalar.sh pi@192.168.1.20 todas                   # todas
+#   NO_RESTART=1 bash scripts/instalar.sh pi@192.168.1.20 overlays   # sin reiniciar
+#   DRY_RUN=1 bash scripts/instalar.sh pi@192.168.1.20 todas          # solo muestra qué instalaría
 #
 # Las funciones son las carpetas de funciones/ (también acepta el nombre del plugin, p. ej. skr_overlays).
 # Variables opcionales: RH_DATA_DIR (carpeta de datos en la Pi, por defecto rh-data, relativa a $HOME),
@@ -43,7 +44,7 @@ plugin_dirs() {
 
 DEST="${1:-}"
 if [[ -z "$DEST" || $# -lt 2 ]]; then
-  sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
   echo
   list_functions
   exit 1

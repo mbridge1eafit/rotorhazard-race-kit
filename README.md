@@ -32,21 +32,28 @@ Herramientas para el PC (no se instalan en el timer):
 
 ## Instalar
 
+**¿Primera vez?** Sigue la guía paso a paso: [docs/instalacion.md](docs/instalacion.md). Explica qué se necesita,
+cómo abrir la terminal en Windows o Mac, qué escribir en cada paso y cómo resolver los errores comunes.
+
+En resumen: descargas este kit en **tu computador** (botón verde **Code → Download ZIP**, o con git), abres una
+terminal en esa carpeta y el instalador copia por la red las funciones que elijas a la Raspberry Pi del timer y
+reinicia RotorHazard. Hazlo **sin carrera en curso**. Necesitas la IP del timer y el usuario y la contraseña de la Pi.
+
+macOS / Linux (Terminal):
+
 ```bash
-git clone https://github.com/mbridge1eafit/rotorhazard-race-kit
-cd rotorhazard-race-kit
-./scripts/instalar.sh                                         # lista las funciones
-./scripts/instalar.sh pi@IP-DE-LA-PI overlays chase-the-ace   # instala las que elijas
+bash scripts/instalar.sh                                         # lista las funciones
+bash scripts/instalar.sh pi@IP-DE-LA-PI overlays chase-the-ace   # instala las que elijas
 ```
 
-En Windows (PowerShell):
+Windows (PowerShell abierto en la carpeta del kit):
 
 ```powershell
-.\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones overlays,chase-the-ace
+powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones overlays,chase-the-ace
 ```
 
-También se puede copiar a mano la carpeta del plugin a `~/rh-data/plugins/` de la Pi y reiniciar RotorHazard.
-Guía completa: [docs/instalacion.md](docs/instalacion.md). Antes del evento, lee [docs/lecciones.md](docs/lecciones.md).
+Sin terminal: copia la carpeta del plugin a `/home/pi/rh-data/plugins/` con WinSCP o Cyberduck y reinicia RotorHazard
+([cómo](docs/instalacion.md#sin-terminal-copiar-a-mano)). Antes del evento, lee [docs/lecciones.md](docs/lecciones.md).
 
 ## Compatibilidad
 

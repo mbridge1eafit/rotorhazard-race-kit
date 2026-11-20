@@ -9,10 +9,11 @@ plugins.
 ## Instalar
 
 ```bash
-./scripts/instalar.sh pi@IP-DE-LA-PI orden-heats
+bash scripts/instalar.sh pi@IP-DE-LA-PI orden-heats
 ```
 
-En Windows: `.\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones orden-heats`. O copia la carpeta
+En Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones orden-heats`.
+Paso a paso, qué ejecutar y dónde: [docs/instalacion.md](../../docs/instalacion.md). O copia la carpeta
 `orden_heats` a `~/rh-data/plugins/` y reinicia RotorHazard.
 
 ## Usar

@@ -8,10 +8,11 @@ carreras descartadas) y `obs-ws.mjs` (para probar OBS desde la terminal). No nec
 ## Instalar
 
 ```bash
-./scripts/instalar.sh pi@IP-DE-LA-PI obs-escena-automatica
+bash scripts/instalar.sh pi@IP-DE-LA-PI obs-escena-automatica
 ```
 
-En Windows: `.\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones obs-escena-automatica`. O copia la carpeta
+En Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones obs-escena-automatica`.
+Paso a paso, qué ejecutar y dónde: [docs/instalacion.md](../../docs/instalacion.md). O copia la carpeta
 `obs_auto_escena` a `~/rh-data/plugins/` y reinicia RotorHazard. Después sigue los pasos de abajo.
 
 El plugin `obs_auto_escena` corre en la Raspberry Pi y le habla a OBS por la red con **obs-websocket v5**
