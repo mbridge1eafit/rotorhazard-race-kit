@@ -142,7 +142,9 @@ def seat_channels(rhapi):
     '''[(etiqueta, MHz)] por puesto según el perfil de frecuencias activo.'''
     out = []
     try:
-        fs = rhapi.db.frequencyset_by_id(rhapi.race.frequencyset)
+        fs = rhapi.race.frequencyset  # RotorHazard 4.5 devuelve el perfil (la doc dice id)
+        if isinstance(fs, int):
+            fs = rhapi.db.frequencyset_by_id(fs)
         data = json.loads(fs.frequencies) if isinstance(fs.frequencies, str) else (fs.frequencies or {})
         bands, chans, freqs = data.get('b') or [], data.get('c') or [], data.get('f') or []
         for i, f in enumerate(freqs):
@@ -171,8 +173,18 @@ def build_live(rhapi):
     show_results = status in ('racing', 'done')
     crossings = seat_crossings(rhapi) if show_results else {}
 
+    # race.pilots es {nodo: id de piloto} en RotorHazard 4.5 (la doc dice lista)
+    raw = race.pilots or {}
+    by_seat = dict(raw) if isinstance(raw, dict) else dict(enumerate(raw))
+    try:
+        n_seats = int(race.slots)
+    except Exception:
+        n_seats = 0
+    n_seats = max(n_seats, len(channels), (max(by_seat) + 1) if by_seat else 0)
+
     seats = []
-    for i, pid in enumerate(race.pilots or []):
+    for i in range(n_seats):
+        pid = by_seat.get(i)
         pilot = db.pilot_by_id(pid) if pid and pid > 0 else None
         label, freq = channels[i] if i < len(channels) else ('', 0)
         row = rows.get(i) if show_results else None

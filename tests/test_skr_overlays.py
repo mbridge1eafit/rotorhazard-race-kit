@@ -36,7 +36,9 @@ def fake_rhapi(status, results):
             pilot_by_id=lambda i: pilots.get(i),
             frequencyset_by_id=lambda i: NS(frequencies=json.dumps(
                 {'b': ['R', 'R', 'F', None], 'c': [1, 2, 4, None], 'f': [5658, 5695, 5800, 5880]})))
-    race = NS(status=status, heat=4, round=1, frequencyset=3, pilots=[1, 2, 3, 0],
+    # como en RotorHazard 4.5: pilots es {nodo: piloto} y frequencyset es el perfil
+    race = NS(status=status, heat=4, round=1, slots=4, pilots={0: 1, 1: 2, 2: 3, 3: 0},
+              frequencyset=NS(frequencies=json.dumps({'b': ['R', 'R', 'F', None], 'c': [1, 2, 4, None], 'f': [5658, 5695, 5800, 5880]})),
               raceformat=NS(number_laps_win=3, unlimited_time=0, race_time_sec=120),
               results=results, seats_finished={1: True}, laps=LAPS)
     return NS(db=db, race=race)
