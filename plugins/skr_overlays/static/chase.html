@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Race Overlays · Chase the Ace</title>
+<title>SKR Overlays · Chase the Ace</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { --muted: rgba(255,255,255,.55); --row: rgba(6,12,26,.80); }
@@ -62,14 +62,14 @@
 </head>
 <body>
 <div id="wrap"></div>
-<script src="/race-overlays/static/common.js"></script>
+<script src="/skr/static/common.js"></script>
 <script>
 // Parámetros: clases=actual|4|4,5 · titulos=PRO,SPORT · subtitulo=... · paleta=ffb321-ff6a3d,2bb5f5-6a5cff
 //             lang · intervalo. Aces necesarios, carreras nulas e Ironman: ajustes del ranking de la clase.
 const { t, esc, qs } = RO;
 const TITLES = RO.list('titulos');
 const PALETTE = RO.palette('paleta', ['ffb321-ff6a3d', '2bb5f5-6a5cff', '22d63a-0fb5a0']);
-const url = '/race-overlays/chase.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
+const url = '/skr/chase.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
 
 RO.poll(url, (data) => {
   const cls = data.classes || [];

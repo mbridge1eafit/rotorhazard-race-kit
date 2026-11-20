@@ -80,7 +80,7 @@ Configuración:
 RotorHazard no sabe de **descalificaciones**. El reglamento dice que una DQ es último lugar en ese heat
 (pueden empatar varios): márcala en *Marshal* borrando las vueltas del piloto.
 
-Overlays: `race-overlays/chase` (tabla en vivo) y `race-overlays/podio?clase=N` ([overlays.md](overlays.md)).
+Overlays: `skr/chase` (tabla en vivo) y `skr/podio?clase=N` ([overlays.md](overlays.md)).
 
 También está el ranking **Chase the Ace (Points + Wins + Last Race)**, que no es el de MultiGP: suma los puntos
 de todas las carreras (formato con puntos, p. ej. 4,3,2,1), desempata por victorias y luego por la última carrera.

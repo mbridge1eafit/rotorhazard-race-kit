@@ -24,7 +24,7 @@ Todos los plugins son independientes. Instala solo los que vas a usar:
 | Plugin | Lo instalas si… |
 |---|---|
 | `obs_auto_escena` | usas OBS y quieres que cambie de escena o grabe solo |
-| `race_overlays` | quieres los overlays de última carrera, posiciones, Chase the Ace o podio |
+| `skr_overlays` | quieres los overlays de última carrera, posiciones, Chase the Ace o podio |
 | `chase_the_ace_rank` | tu final es Chase the Ace (MultiGP) |
 | `points_by_heat_size` | tus heats tienen distinto número de pilotos y quieres puntos según eso |
 | `orden_heats` | quieres alternar heats de dos o más clases |
@@ -66,7 +66,7 @@ Windows (PowerShell, desde la carpeta del repo):
 .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20 -Clave $env:USERPROFILE\.ssh\rotorhazard_ed25519
 ```
 
-Solo algunos: `-Plugins race_overlays,obs_auto_escena`. Si PowerShell no deja ejecutar scripts:
+Solo algunos: `-Plugins skr_overlays,obs_auto_escena`. Si PowerShell no deja ejecutar scripts:
 `powershell -ExecutionPolicy Bypass -File .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20`.
 
 macOS / Linux:
@@ -75,7 +75,7 @@ macOS / Linux:
 SSH_KEY=~/.ssh/rotorhazard_ed25519 ./scripts/instalar-plugins.sh pi@192.168.1.20
 ```
 
-Solo algunos: `./scripts/instalar-plugins.sh pi@192.168.1.20 race_overlays obs_auto_escena`.
+Solo algunos: `./scripts/instalar-plugins.sh pi@192.168.1.20 skr_overlays obs_auto_escena`.
 
 El script copia cada carpeta a `~/rh-data/plugins/`, guarda la versión anterior en
 `~/rh-plugin-backups/` (fuera de `plugins`, para que RotorHazard no la cargue), reinicia el servicio
@@ -83,21 +83,21 @@ y muestra las líneas del log de los plugins.
 
 ### Opción B — a mano
 
-1. Copia la carpeta del plugin (p. ej. `plugins/race_overlays`) dentro de `~/rh-data/plugins/` en la Pi,
-   con `scp -r`, WinSCP, FileZilla (SFTP) o una memoria USB. Debe quedar `~/rh-data/plugins/race_overlays/__init__.py`.
+1. Copia la carpeta del plugin (p. ej. `plugins/skr_overlays`) dentro de `~/rh-data/plugins/` en la Pi,
+   con `scp -r`, WinSCP, FileZilla (SFTP) o una memoria USB. Debe quedar `~/rh-data/plugins/skr_overlays/__init__.py`.
 2. Reinicia RotorHazard: **Ajustes → Sistema → Reiniciar servidor**, o `sudo systemctl restart rotorhazard`.
 
 ### Opción C — con un agente de IA
 
 Con el MCP configurado ([mcp-server/README.md](../mcp-server/README.md)), pídele:
-*"instala el plugin de la carpeta plugins/race_overlays y reinicia"* (herramienta `rh_install_plugin_from_file`).
+*"instala el plugin de la carpeta plugins/skr_overlays y reinicia"* (herramienta `rh_install_plugin_from_file`).
 
 ## 5. Verificar
 
 - **Ajustes → Plugins**: cada plugin aparece cargado, sin error.
 - Log de la Pi: `journalctl -u rotorhazard -n 100 | grep -i plugin`. Cada plugin escribe una línea al cargar
-  (p. ej. `obs_auto_escena: listo`, `race_overlays: /race-overlays/... listos`).
-- Overlays: abre `http://IP-DE-LA-PI:5000/race-overlays/posiciones?clases=todas` en el navegador.
+  (p. ej. `obs_auto_escena: listo`, `skr_overlays: /skr/... listos`).
+- Overlays: abre `http://IP-DE-LA-PI:5000/skr/posiciones?clases=todas` en el navegador.
 
 ## 6. Actualizar o desinstalar
 
@@ -110,9 +110,9 @@ Con el MCP configurado ([mcp-server/README.md](../mcp-server/README.md)), pídel
 
 Si ya tenías estos plugins de antes de que existiera este repo:
 
-- `skr_overlays` pasó a llamarse **`race_overlays`** y sus páginas pasaron de `/skr/...` a `/race-overlays/...`.
-  Borra `~/rh-data/plugins/skr_overlays`, instala `race_overlays` y cambia las URL de las fuentes de OBS.
-  Por defecto `posiciones` muestra la clase del heat actual: para las de antes usa `?clases=2,3`.
+- `skr_overlays` 2.0: mismas rutas `/skr/...`, así que las fuentes de OBS no cambian. Lo nuevo:
+  `posiciones` sin `?clases=` muestra la clase del heat actual (antes eran la 2 y la 3), y el podio también
+  está en `/skr/podio` (la ruta vieja `/skr/static/podio.html` sigue funcionando).
 - `obs_auto_escena` 2.0: hay que volver a cargar en OBS el script nuevo `obs/scripts/rotorhazard_dvr.lua`
   (reemplaza a `skr_escena_al_aire.lua`). La configuración guardada (IP, escenas, carpeta) se conserva.
 - `chase_the_ace_rank` 2.0: el método cambió de nombre visible a *MultiGP Chase the Ace (2026 rules)*,

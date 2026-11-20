@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Race Overlays · Standings</title>
+<title>SKR Overlays · Standings</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { --txt: #fff; --muted: rgba(255,255,255,.55); --row: rgba(6,12,26,.78); }
@@ -52,7 +52,7 @@
 </head>
 <body>
 <div id="wrap"></div>
-<script src="/race-overlays/static/common.js"></script>
+<script src="/skr/static/common.js"></script>
 <script>
 // Parámetros: clases=2,3|actual|todas · titulos=PRO,SPORT · zona=4 (0 = sin zona de final)
 //             paleta=ffb321-ff6a3d,2bb5f5-6a5cff · lang · intervalo
@@ -60,7 +60,7 @@ const { t, esc, qs } = RO;
 const ZONE = RO.num('zona', 4);
 const TITLES = RO.list('titulos');
 const PALETTE = RO.palette('paleta', ['ffb321-ff6a3d', '2bb5f5-6a5cff', '22d63a-0fb5a0']);
-const url = '/race-overlays/posiciones.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
+const url = '/skr/posiciones.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
 
 RO.poll(url, (data) => {
   const classes = data.classes || [];

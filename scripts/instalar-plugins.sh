@@ -4,7 +4,7 @@
 #
 # Uso:
 #   ./scripts/instalar-plugins.sh pi@192.168.1.20                      # todos los plugins
-#   ./scripts/instalar-plugins.sh pi@192.168.1.20 race_overlays obs_auto_escena
+#   ./scripts/instalar-plugins.sh pi@192.168.1.20 skr_overlays obs_auto_escena
 #   NO_RESTART=1 ./scripts/instalar-plugins.sh pi@192.168.1.20         # sin reiniciar
 #
 # Variables opcionales: RH_DATA_DIR (carpeta de datos en la Pi, por defecto rh-data, relativa a $HOME),

@@ -4,7 +4,7 @@
 
 .EXAMPLE
   .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20
-  .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20 -Plugins race_overlays,obs_auto_escena
+  .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20 -Plugins skr_overlays,obs_auto_escena
   .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20 -SinReiniciar -Clave $env:USERPROFILE\.ssh\rotorhazard_ed25519
 
 .NOTES

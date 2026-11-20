@@ -1,13 +1,13 @@
-'''Race Overlays: páginas para OBS (browser source, 1920x1080, fondo transparente) que leen la
+'''SKR Overlays: páginas para OBS (browser source, 1920x1080, fondo transparente) que leen la
 base de datos de RotorHazard, así que siguen funcionando después de reiniciar el servidor.
 
-/race-overlays/ultima-carrera   Resultado de la última carrera guardada: posición, piloto, canal,
+/skr/ultima-carrera   Resultado de la última carrera guardada: posición, piloto, canal,
                                 vueltas, mejor tiempo y el tiempo de cada vuelta.
-/race-overlays/posiciones       Tablas de una o varias clases lado a lado (posición, piloto, puntos,
+/skr/posiciones       Tablas de una o varias clases lado a lado (posición, piloto, puntos,
                                 baterías corridas y victorias). ?clases=2,3 | actual | todas
-/race-overlays/chase            Final Chase the Ace: victorias, puesto en cada carrera y suma.
+/skr/chase            Final Chase the Ace: victorias, puesto en cada carrera y suma.
                                 ?clases=actual (por defecto) | 4 | 4,5
-/race-overlays/podio            Podio animado de una final con campeón. ?clase=actual | 4
+/skr/podio            Podio animado de una final con campeón. ?clase=actual | 4
 
 Cada página tiene su JSON (<página>.json). Los parámetros de presentación (idioma, colores,
 títulos, zona de final...) van en la URL de la página: ver docs/overlays.md.
@@ -24,7 +24,7 @@ from flask import Blueprint, jsonify, request, send_file
 logger = logging.getLogger(__name__)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PREFIX = '/race-overlays'
+PREFIX = '/skr'
 
 BANDS = {
     'R': [5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917],
@@ -273,7 +273,7 @@ def parse_classes(rhapi, arg, default='actual'):
 
 
 def initialize(rhapi):
-    bp = Blueprint('race_overlays', __name__, static_folder='static',
+    bp = Blueprint('skr_overlays', __name__, static_folder='static',
                    static_url_path=PREFIX + '/static')
 
     def page(name):
@@ -283,7 +283,7 @@ def initialize(rhapi):
         try:
             data = builder()
         except Exception as ex:
-            logger.exception('race_overlays: error armando %s', what)
+            logger.exception('skr_overlays: error armando %s', what)
             data = {'error': str(ex)}
         data['seat_colors'] = seat_colors(rhapi)
         data['lang'] = ui_language(rhapi)
@@ -323,4 +323,4 @@ def initialize(rhapi):
         return page('podio')
 
     rhapi.ui.blueprint_add(bp)
-    logger.info('race_overlays: %s/{ultima-carrera,posiciones,chase,podio} listos', PREFIX)
+    logger.info('skr_overlays: %s/{ultima-carrera,posiciones,chase,podio} listos', PREFIX)

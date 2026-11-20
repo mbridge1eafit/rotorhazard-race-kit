@@ -1,4 +1,4 @@
-// Race Overlays: utilidades comunes de las páginas (idioma, parámetros de la URL, colores, sondeo).
+// SKR Overlays: utilidades comunes de las páginas (idioma, parámetros de la URL, colores, sondeo).
 // Parámetros que sirven en todas las páginas:
 //   lang=es|en         idioma (por defecto, el de la interfaz de RotorHazard)
 //   intervalo=3000     cada cuántos ms se consulta el timer

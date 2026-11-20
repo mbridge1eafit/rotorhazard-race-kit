@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Race Overlays · Podium</title>
+<title>SKR Overlays · Podium</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { --a: #2bb5f5; --b: #6a5cff; --gold: #ffd23f; --gold2: #ff9d1f; --silver: #dfe8f3; --silver2: #8fa3bb; --bronze: #ffb37a; --bronze2: #b8612a; }
@@ -88,7 +88,7 @@
 <div class="beam l"></div><div class="beam r"></div>
 <div id="app"></div>
 <canvas id="fx" width="1920" height="1080"></canvas>
-<script src="/race-overlays/static/common.js"></script>
+<script src="/skr/static/common.js"></script>
 <script>
 // Parámetros: clase=actual|4 · titulo=... · subtitulo=... · paleta=ffb321-ff6a3d
 //             fondo=0 (transparente, para poner encima de otra escena) · confeti=0 · lang
@@ -153,7 +153,7 @@ loop();
 let shown = '';
 async function tick() {
   try {
-    const d = await (await fetch('/race-overlays/chase.json?clases=' + encodeURIComponent(clase), { cache: 'no-store' })).json();
+    const d = await (await fetch('/skr/chase.json?clases=' + encodeURIComponent(clase), { cache: 'no-store' })).json();
     RO.setLang(d.lang);
     const c = (d.classes || [])[0];
     if (!c) return;

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Race Overlays · Last race</title>
+<title>SKR Overlays · Last race</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -62,14 +62,14 @@
   </div>
   <div class="rows" id="rows"></div>
 </div>
-<script src="/race-overlays/static/common.js"></script>
+<script src="/skr/static/common.js"></script>
 <script>
 // Parámetros: pos=abajo|arriba · colores=0022ff,ff5500,... · lang · intervalo
 const { t, esc, qs } = RO;
 let lastRace = null;
 if (['arriba', 'top'].includes((qs.get('pos') || '').toLowerCase())) document.getElementById('panel').classList.add('top');
 
-RO.poll('/race-overlays/ultima-carrera.json', (data) => {
+RO.poll('/skr/ultima-carrera.json', (data) => {
   const panel = document.getElementById('panel');
   if (!data || !data.race) { panel.classList.remove('show'); lastRace = null; return; }
   const colors = RO.seatColors(data);

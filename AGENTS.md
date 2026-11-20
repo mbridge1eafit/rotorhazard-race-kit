@@ -8,7 +8,7 @@ este kit en el timer RotorHazard de alguien. Las guías para personas están en 
 | Ruta | Corre en | Lenguaje | Notas |
 |---|---|---|---|
 | `plugins/<dominio>/` | Raspberry Pi, dentro de RotorHazard (`~/rh-data/plugins/<dominio>/`) | Python 3.11 + RHAPI | Cada carpeta es un plugin independiente con `manifest.json` y `__init__.py` (`initialize(rhapi)`). |
-| `plugins/race_overlays/static/` | navegador / fuente de navegador de OBS | HTML + JS sin dependencias | `common.js` tiene el i18n (es/en) y los parámetros de URL. |
+| `plugins/skr_overlays/static/` | navegador / fuente de navegador de OBS | HTML + JS sin dependencias | `common.js` tiene el i18n (es/en) y los parámetros de URL. |
 | `obs/scripts/rotorhazard_dvr.lua` | dentro de OBS (Windows, macOS, Linux) | Lua 5.1 / LuaJIT (obslua) | Lee `[RotorHazardDVR]` del perfil de OBS. |
 | `obs/obs-ws.mjs` | PC del usuario | Node.js 22+ | Cliente obs-websocket v5 para pruebas. |
 | `mcp-server/` | PC del usuario | TypeScript, Node.js ≥ 20.3 | Servidor MCP (stdio). Configuración solo por variables de entorno (`mcp-server/README.md`). |
@@ -60,15 +60,15 @@ SSH_KEY=~/.ssh/<clave> ./scripts/instalar-plugins.sh pi@<IP> <plugin> [<plugin> 
 Con el MCP: `rh_install_plugin_from_file path='<repo>/plugins/<plugin>' restart=true`.
 A mano: copiar la carpeta a `~/rh-data/plugins/` y `sudo systemctl restart rotorhazard`.
 
-**No dejes copias dentro de `~/rh-data/plugins/`** (p. ej. `race_overlays.bak/`): RotorHazard intenta cargarlas
+**No dejes copias dentro de `~/rh-data/plugins/`** (p. ej. `skr_overlays.bak/`): RotorHazard intenta cargarlas
 como plugins.
 
 ## Verificar
 
 - Log tras reiniciar: `journalctl -u rotorhazard -n 200 --no-pager | grep -iE 'plugin|listo|error|Traceback'`.
   Cada plugin escribe una línea al cargar (`obs_auto_escena: listo`, `orden_heats: listo`,
-  `race_overlays: /race-overlays/... listos`, `option_numeric_fix: get_optionNumeric filter registered`).
-- Overlays: `curl -s http://<IP>:5000/race-overlays/posiciones.json?clases=todas` devuelve JSON con `classes`,
+  `skr_overlays: /skr/... listos`, `option_numeric_fix: get_optionNumeric filter registered`).
+- Overlays: `curl -s http://<IP>:5000/skr/posiciones.json?clases=todas` devuelve JSON con `classes`,
   `seat_colors` y `lang`.
 - OBS: botón *Probar conexión* del panel, o `node obs/obs-ws.mjs '[["GetVersion"]]'` con `OBS_URL`/`OBS_PASSWORD`.
 - Chase the Ace: `rh_get_class_results` de la clase de la final (o el overlay `chase.json`).
@@ -86,12 +86,12 @@ como plugins.
 python tests/test_chase_the_ace.py
 python tests/test_obs_auto_escena.py
 python -m py_compile plugins/*/__init__.py
-node --check plugins/race_overlays/static/common.js
+node --check plugins/skr_overlays/static/common.js
 cd mcp-server && npm install && npm run build && npx tsx scripts/marshal-analysis.test.ts
 ```
 
 Para los overlays, las páginas se pueden abrir sin la Pi sirviendo `static/` junto a un JSON de ejemplo
-(ver el formato en `plugins/race_overlays/__init__.py`).
+(ver el formato en `plugins/skr_overlays/__init__.py`).
 `test_obs_auto_escena.py` simula OBS; el script Lua y la conexión real no tienen prueba automática: pruébalos con
 OBS real y una carrera de prueba (staging → detener → guardar, y otra con descartar).
 

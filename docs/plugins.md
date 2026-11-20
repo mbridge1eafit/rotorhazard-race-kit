@@ -5,7 +5,7 @@ Dónde se configura cada uno y dónde guarda su configuración.
 | Plugin | Versión | Panel en Ajustes | Guarda en |
 |---|---|---|---|
 | `obs_auto_escena` | 2.0.0 | OBS: cambio automático de escena | `config.json` → `OBS_AUTO_ESCENA` (sobrevive a cambios de evento) |
-| `race_overlays` | 2.0.0 | — (se configura con la URL) | — |
+| `skr_overlays` | 2.0.0 | — (se configura con la URL) | — |
 | `chase_the_ace_rank` | 2.0.0 | en cada clase, ajustes del ranking | la clase (`rank_settings`) |
 | `points_by_heat_size` | 1.3.0 | Points by Heat Size | base del evento (opciones `pbhs_*`) |
 | `orden_heats` | 1.1.0 | Orden de heats entre clases | base del evento (opciones `oh_*`) |
@@ -31,10 +31,10 @@ Eventos que escucha: `RACE_STAGE`, `RACE_STOP`, `LAPS_SAVE`, `LAPS_DISCARD`. Par
 el perfil de OBS la sección `[RotorHazardDVR]` (`Discard`, `Mode`, `Folder`, `Subfolder`), que lee
 `obs/scripts/rotorhazard_dvr.lua`. Ver [obs.md](obs.md).
 
-## race_overlays
+## skr_overlays
 
-Rutas `/race-overlays/{ultima-carrera,posiciones,chase,podio}` y sus `.json`; estáticos en
-`/race-overlays/static/`. Los JSON incluyen `seat_colors` (de Ajustes → LED) y `lang` (idioma de la interfaz).
+Rutas `/skr/{ultima-carrera,posiciones,chase,podio}` y sus `.json`; estáticos en
+`/skr/static/`. Los JSON incluyen `seat_colors` (de Ajustes → LED) y `lang` (idioma de la interfaz).
 Parámetros de URL en [overlays.md](overlays.md).
 
 ## chase_the_ace_rank

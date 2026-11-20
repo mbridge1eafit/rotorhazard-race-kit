@@ -1,4 +1,4 @@
-# Overlays para OBS (`race_overlays`)
+# Overlays para OBS (`skr_overlays`)
 
 Páginas de 1920×1080 con fondo transparente que se ponen en OBS como **fuente de navegador**. Leen la
 base de datos de RotorHazard, así que siguen funcionando después de reiniciar el timer, y se actualizan
@@ -8,10 +8,10 @@ Reemplaza `PI` por la IP del timer (p. ej. `192.168.1.20:5000`).
 
 | Página | URL | Para qué |
 |---|---|---|
-| Última carrera | `http://PI/race-overlays/ultima-carrera` | Resultado de la última carrera guardada: posición, piloto, canal, vueltas, mejor tiempo y cada vuelta (la más rápida resaltada). Ideal debajo del "próximo heat". |
-| Posiciones | `http://PI/race-overlays/posiciones?clases=2,3` | Tablas de una o varias clases lado a lado: posición, piloto, puntos, baterías corridas y victorias, con zona de final. |
-| Chase the Ace | `http://PI/race-overlays/chase` | Final en curso: Aces (A♠), puesto en cada carrera, suma de puestos, carreras nulas y campeón. |
-| Podio | `http://PI/race-overlays/podio?clase=4` | Podio animado (3.º → 2.º → 1.º, corona y confeti) cuando la final tiene campeón. |
+| Última carrera | `http://PI/skr/ultima-carrera` | Resultado de la última carrera guardada: posición, piloto, canal, vueltas, mejor tiempo y cada vuelta (la más rápida resaltada). Ideal debajo del "próximo heat". |
+| Posiciones | `http://PI/skr/posiciones?clases=2,3` | Tablas de una o varias clases lado a lado: posición, piloto, puntos, baterías corridas y victorias, con zona de final. |
+| Chase the Ace | `http://PI/skr/chase` | Final en curso: Aces (A♠), puesto en cada carrera, suma de puestos, carreras nulas y campeón. |
+| Podio | `http://PI/skr/podio?clase=4` | Podio animado (3.º → 2.º → 1.º, corona y confeti) cuando la final tiene campeón. |
 
 Cada página tiene su JSON (`.../posiciones.json?clases=2,3`, `.../ultima-carrera.json`, `.../chase.json`)
 por si quieres hacer tu propio diseño.
@@ -84,10 +84,10 @@ Para escribir espacios en la URL usa `%20`.
 | Escena | Fuentes |
 |---|---|
 | Carrera | captura del VRX + overlays de nodo de Stream Overlays (`/stream/overlay/<tema>/node/1..4`) |
-| Próximo heat | video de fondo + `/stream/overlay/apex/heat/upcoming` arriba + `race-overlays/ultima-carrera` abajo |
-| Posiciones | video de fondo + `race-overlays/posiciones?clases=2,3&titulos=PRO,SPORT` |
-| Chase the Ace | video de fondo + `race-overlays/chase` |
-| Podio Pro / Sport | `race-overlays/podio?clase=4&titulo=PODIO%20PRO&paleta=ffb321-ff6a3d` |
+| Próximo heat | video de fondo + `/stream/overlay/apex/heat/upcoming` arriba + `skr/ultima-carrera` abajo |
+| Posiciones | video de fondo + `skr/posiciones?clases=2,3&titulos=PRO,SPORT` |
+| Chase the Ace | video de fondo + `skr/chase` |
+| Podio Pro / Sport | `skr/podio?clase=4&titulo=PODIO%20PRO&paleta=ffb321-ff6a3d` |
 
 Con `obs_auto_escena` la escena de carrera entra sola en el staging y la de próximo heat al guardar.
 
