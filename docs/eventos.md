@@ -74,10 +74,3 @@ Overlays: `skr/chase` (tabla en vivo) y `skr/podio?clase=N` ([overlays.md](overl
 
 También está el ranking **Chase the Ace (Points + Wins + Last Race)**, que no es el de MultiGP: suma los puntos
 de todas las carreras (formato con puntos, p. ej. 4,3,2,1), desempata por victorias y luego por la última carrera.
-
-## Página Marshal en RotorHazard 4.5.1 (`option_numeric_fix`)
-
-En 4.5.1, `get_optionNumeric()` siempre devuelve el valor por defecto, así que la página Marshal recalcula
-**sin vuelta mínima** (salen vueltas de 2 s que, guardadas, inflan el resultado) y las páginas de Carrera y
-Formato muestran "vuelta mínima 0". El cronometraje en vivo no se ve afectado. El plugin lo corrige para
-`MinLapSec` y `MinFirstCrossingSec`. Si tu versión ya lo trae corregido, no hace falta.

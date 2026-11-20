@@ -17,7 +17,8 @@ Problemas reales del evento original (RotorHazard 4.5.1 en Pi 3B, OBS en una Mac
 - Plugins que **replican datos** (Cloudlink, MultiGP Toolkit) suben a su nube cada clase, heat y carrera que
   crees, también las de prueba. Desactívalos mientras pruebas. MultiGP Toolkit además impide repetir ronda
   en clases que no son de "heats predefinidos".
-- RotorHazard 4.5.1: la página Marshal recalculaba sin vuelta mínima → `option_numeric_fix`.
+- RotorHazard 4.5.1: la página Marshal recalcula **sin vuelta mínima** (bug de `get_optionNumeric()`); salen vueltas
+  de 2 s que, guardadas, inflan el resultado. Revisa las vueltas antes de guardar en Marshal.
 
 ## Radio
 

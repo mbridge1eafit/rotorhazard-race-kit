@@ -67,7 +67,7 @@ como plugins.
 
 - Log tras reiniciar: `journalctl -u rotorhazard -n 200 --no-pager | grep -iE 'plugin|listo|error|Traceback'`.
   Cada plugin escribe una línea al cargar (`obs_auto_escena: listo`, `orden_heats: listo`,
-  `skr_overlays: /skr/... listos`, `option_numeric_fix: get_optionNumeric filter registered`).
+  `skr_overlays: /skr/... listos`).
 - Overlays: `curl -s http://<IP>:5000/skr/posiciones.json?clases=todas` devuelve JSON con `classes`,
   `seat_colors` y `lang`.
 - OBS: botón *Probar conexión* del panel, o `node obs/obs-ws.mjs '[["GetVersion"]]'` con `OBS_URL`/`OBS_PASSWORD`.

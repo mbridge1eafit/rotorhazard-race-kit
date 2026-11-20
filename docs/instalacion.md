@@ -27,7 +27,6 @@ Todos los plugins son independientes. Instala solo los que vas a usar:
 | `skr_overlays` | quieres los overlays de última carrera, posiciones, Chase the Ace o podio |
 | `chase_the_ace_rank` | tu final es Chase the Ace (MultiGP) |
 | `orden_heats` | quieres alternar heats de dos o más clases |
-| `option_numeric_fix` | usas **RotorHazard 4.5.1** y la página Marshal (no hace falta en otras versiones si ya está corregido) |
 
 ## 3. Clave SSH (recomendado, una sola vez)
 

@@ -8,7 +8,6 @@ Dónde se configura cada uno y dónde guarda su configuración.
 | `skr_overlays` | 2.0.0 | — (se configura con la URL) | — |
 | `chase_the_ace_rank` | 2.0.0 | en cada clase, ajustes del ranking | la clase (`rank_settings`) |
 | `orden_heats` | 1.1.0 | Orden de heats entre clases | base del evento (opciones `oh_*`) |
-| `option_numeric_fix` | 1.0.0 | — | — |
 
 ## obs_auto_escena
 
@@ -55,7 +54,3 @@ Pruebas: `python tests/test_chase_the_ace.py`.
 Opciones: `oh_enabled`, `oh_sequence` (ids de heat), `oh_classes` (ids de clase para generar la secuencia).
 Botones: *Generar secuencia intercalada*, *Ir al primer heat pendiente*, *Mostrar secuencia*.
 Escucha `LAPS_SAVE`. Requiere *Avance de heat* = Ninguno en esas clases.
-
-## option_numeric_fix
-
-Filtro `OPTION_GET_NUMERIC` para `MinLapSec` y `MinFirstCrossingSec` (bug de RotorHazard 4.5.1).

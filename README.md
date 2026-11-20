@@ -18,7 +18,6 @@ parametrizable para que cualquiera lo use en su timer.
 | [`plugins/skr_overlays`](plugins/skr_overlays) | Overlays para OBS: última carrera con tiempos por vuelta, posiciones de varias clases lado a lado, tabla de la final Chase the Ace y podio animado. Español e inglés. |
 | [`plugins/chase_the_ace_rank`](plugins/chase_the_ace_rank) | Ranking de clase **MultiGP Chase the Ace** según *2026 MultiGP Rules & Regulations* 7.9.2 (Aces, carreras nulas, suma de puestos, desempate motocross, cláusula Ironman). |
 | [`plugins/orden_heats`](plugins/orden_heats) | Corre heats de clases distintas en una secuencia fija (Sport 1, Pro 1, Sport 2…) y la puede generar sola. |
-| [`plugins/option_numeric_fix`](plugins/option_numeric_fix) | Arreglo para RotorHazard **4.5.1**: la página Marshal no aplicaba la vuelta mínima. |
 | [`obs/`](obs) | Script de OBS para el DVR de las carreras descartadas, CSS para los overlays de Stream Overlays y un cliente de obs-websocket. |
 | [`mcp-server/`](mcp-server) | Servidor MCP: le permite a un agente de IA (Claude Code, Claude Desktop u otro cliente MCP) administrar el timer, con 80+ herramientas para eventos, carreras, frecuencias, marshal, plugins, backups y la Pi. |
 | [`herramientas/espectro`](herramientas/espectro) | Usa los receptores del timer como analizador de espectro para elegir canales. |
@@ -75,7 +74,7 @@ for AI agents, built for and tested at a real three-day FPV event:
 - `obs_auto_escena`: switches the OBS program scene when a race is staged and when laps are saved, and records one DVR file per race. OBS can run on Windows, macOS or Linux. Discarded races can be kept, moved, sent to the trash or deleted by a companion OBS Lua script.
 - `skr_overlays`: OBS browser-source pages (1920×1080, transparent) for the last race with lap times, standings of several classes side by side, the Chase the Ace final table and an animated podium. Language (`?lang=en`), colors, titles and classes are set in the URL.
 - `chase_the_ace_rank`: a class ranking that follows the 2026 MultiGP Rules & Regulations 7.9.2. First to two Aces (a win with all laps completed); a race where nobody completes the laps is void; the rest of the podium goes by lowest sum of positions with a motocross tie-break; the Ironman clause is optional. Settings are per class.
-- `orden_heats` (interleave heats across classes) and `option_numeric_fix` (RotorHazard 4.5.1 Marshal min-lap bug).
+- `orden_heats`: interleaves heats across classes.
 - `mcp-server`: an MCP server with 80+ tools to run the timer from Claude Code or any MCP client.
 - `herramientas/espectro`: a spectrum scan using the timer's own receivers to pick clean channels.
 
