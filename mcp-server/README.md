@@ -1,6 +1,16 @@
 # rotorhazard-mcp-server
 
-Servidor MCP para administrar un timer **RotorHazard** (carreras FPV) desde Claude u otro cliente MCP: evento, pilotos, heats, clases, formatos, control de carrera, frecuencias y afinación, plugins comunitarios, backups, exportación, actualizaciones del software y salud de la Raspberry Pi.
+Servidor MCP que apoya al **director de carrera** de un timer **RotorHazard** (carreras FPV) desde Claude Code, Claude Desktop u otro cliente MCP. El director sigue manejando el evento; el asistente le ahorra trabajo y le ayuda a revisar, pidiéndole las cosas en lenguaje natural:
+
+- **Armar y ajustar el evento**: crear o editar pilotos, heats y clases en lote, mover pilotos entre heats, cambiar formatos.
+- **Frecuencias**: ver y cambiar los canales con los que se está corriendo, los umbrales de cada nodo y los perfiles.
+- **Marshal**: revisar carreras guardadas, detectar vueltas dudosas (dobles cruces, pasadas perdidas, umbrales mal puestos) y proponer correcciones que el director aprueba.
+- **Auditar la Raspberry Pi**: temperatura, throttling, disco, servicio, logs y versión de RotorHazard y del firmware de los nodos.
+- **Mantenimiento**: backups de la base, plugins, exportaciones y actualizaciones.
+
+Ejemplos: *"crea 16 heats de 3 con estos pilotos sin que nadie vuele dos seguidos"*, *"pasa el nodo 4 a R6"*,
+*"revisa la última carrera"*, *"¿cómo está la Pi?"*, *"haz un backup"*. Para las operaciones destructivas
+(borrar, restaurar, resetear, actualizar) el asistente hace backup y pide confirmación antes.
 
 Basado en el código y la documentación oficiales de RotorHazard v4.5.1 (`doc/Software Setup.md`, `doc/Plugins.md`, `src/server/server.py`, `json_endpoints.py`, `util/plugin_installation.py`).
 

@@ -2,8 +2,9 @@
 
 Funciones para correr un evento de drones FPV con [RotorHazard](https://github.com/RotorHazard/RotorHazard):
 OBS que cambia de escena y graba solo, overlays propios para la transmisión, finales **Chase the Ace con el
-reglamento MultiGP 2026**, heats intercalados entre clases y un servidor MCP para que un agente de IA
-administre el timer.
+reglamento MultiGP 2026**, heats intercalados entre clases y un servidor MCP que apoya al director de
+carrera desde un asistente de IA: crear o editar heats, cambiar frecuencias, revisar el estado de la Raspberry Pi
+y más, pidiéndolo en lenguaje natural.
 
 Salió de un evento real de tres días (clasificación, round robin Pro/Sport y finales). Cada función es
 **independiente**: instalas solo las que quieras y no necesitan otros plugins.
@@ -25,7 +26,7 @@ Herramientas para el PC (no se instalan en el timer):
 
 | Carpeta | Qué es |
 |---|---|
-| [`mcp-server/`](mcp-server) | Servidor MCP para administrar el timer desde Claude Code, Claude Desktop u otro cliente MCP (80+ herramientas). |
+| [`mcp-server/`](mcp-server) | Apoyo al director de carrera desde Claude Code, Claude Desktop u otro cliente MCP: crear y editar pilotos, heats y clases, cambiar frecuencias, revisar carreras guardadas (marshal), backups, plugins y el estado de la Raspberry Pi (80+ herramientas). El director decide; el asistente hace las tareas repetitivas y revisa. |
 | [`herramientas/espectro`](herramientas/espectro) | Usa los receptores del timer como analizador de espectro para elegir canales. |
 | [`scripts/`](scripts) | Instalador de funciones (Windows y macOS/Linux). |
 | [`docs/`](docs) | Instalación, armado del evento, Raspberry Pi y lecciones aprendidas. |
@@ -85,7 +86,7 @@ none of them needs another plugin.
 - `overlays`: self-contained OBS browser-source pages (1920×1080, transparent). They show live pilot info over each video feed, the next heat, the last race with lap times, the standings of several classes, the Chase the Ace final table and an animated podium. Language (`?lang=en`), colors, titles and layout are set in the URL. Stream Overlays is not required.
 - `chase-the-ace`: a class ranking that follows the 2026 MultiGP Rules & Regulations 7.9.2. First to two Aces (a win with all laps completed); a race where nobody completes the laps is void; the rest go by lowest sum of positions with a motocross tie-break; the Ironman clause is optional.
 - `orden-heats`: interleaves heats across classes.
-- `mcp-server`: an MCP server with 80+ tools to run the timer from Claude Code or any MCP client.
+- `mcp-server`: an MCP server (80+ tools) that supports the race director from Claude Code or any MCP client: creating and editing heats, changing frequencies, reviewing saved races, backups and auditing the Raspberry Pi.
 - `herramientas/espectro`: a spectrum scan that uses the timer's own receivers to pick clean channels.
 
 The docs are in Spanish. Each feature folder has a README with its settings and the overlay URL parameters.

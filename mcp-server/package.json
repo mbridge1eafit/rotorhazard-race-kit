@@ -1,7 +1,7 @@
 {
   "name": "rotorhazard-mcp-server",
   "version": "1.0.0",
-  "description": "MCP server para administrar un timer RotorHazard (FPV): carreras, pilotos, heats, frecuencias, plugins, backups y actualizaciones",
+  "description": "MCP server de apoyo al director de carrera de un timer RotorHazard (FPV): heats, pilotos, frecuencias, marshal, backups, plugins y estado de la Raspberry Pi",
   "type": "module",
   "bin": {
     "rotorhazard-mcp-server": "dist/index.js"
