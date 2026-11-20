@@ -1,0 +1,35 @@
+{
+  "name": "rotorhazard-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server para administrar un timer RotorHazard (FPV): carreras, pilotos, heats, frecuencias, plugins, backups y actualizaciones",
+  "type": "module",
+  "bin": {
+    "rotorhazard-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "engines": {
+    "node": ">=20.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.4.0",
+    "fflate": "^0.8.3",
+    "socket.io-client": "^4.8.4",
+    "ssh2": "^1.17.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@types/node": "^24.0.0",
+    "@types/ssh2": "^1.15.6",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  }
+}

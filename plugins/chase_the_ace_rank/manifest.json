@@ -1,0 +1,12 @@
+{
+    "domain": "chase_the_ace_rank",
+    "name": "Chase the Ace Ranking",
+    "author": "Mauricio Bridge",
+    "author_uri": "https://github.com/mbridge1eafit",
+    "description": "Class ranking for Chase the Ace finals following the 2026 MultiGP Rules & Regulations (7.9.2): first to 2 Aces (win + completing the laps), void races when nobody finishes, rest of podium by lowest sum of positions with motocross tie-break, optional Ironman clause; per-class settings. Also a Points + Wins + Last Race variant.",
+    "documentation_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/docs/eventos.md",
+    "license": "MIT",
+    "license_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/LICENSE",
+    "version": "2.0.0",
+    "required_rhapi_version": "1.0"
+}

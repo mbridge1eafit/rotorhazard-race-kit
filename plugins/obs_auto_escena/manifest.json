@@ -1,0 +1,12 @@
+{
+    "domain": "obs_auto_escena",
+    "name": "OBS: cambio automático de escena",
+    "author": "Mauricio Bridge",
+    "author_uri": "https://github.com/mbridge1eafit",
+    "description": "Switches the OBS program scene (obs-websocket v5, OBS on Windows, macOS or Linux) when a race starts and ends, and optionally records a DVR file per race; discarded races can be kept, moved, trashed or deleted.",
+    "documentation_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/docs/obs.md",
+    "license": "MIT",
+    "license_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/LICENSE",
+    "version": "2.0.0",
+    "required_rhapi_version": "1.2"
+}

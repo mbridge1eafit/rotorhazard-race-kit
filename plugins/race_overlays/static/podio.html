@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Race Overlays · Podium</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --a: #2bb5f5; --b: #6a5cff; --gold: #ffd23f; --gold2: #ff9d1f; --silver: #dfe8f3; --silver2: #8fa3bb; --bronze: #ffb37a; --bronze2: #b8612a; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body { font-family: "Rajdhani", sans-serif; color: #fff; position: relative;
+         background: radial-gradient(1100px 700px at 50% 110%, color-mix(in srgb, var(--a) 35%, transparent), transparent 70%),
+                     radial-gradient(900px 600px at 50% -20%, rgba(255,210,63,.18), transparent 70%), #050913; }
+  /* rejilla de piso en perspectiva */
+  .floor { position: absolute; left: -20%; right: -20%; bottom: -10%; height: 55%; transform: perspective(700px) rotateX(62deg);
+           background-image: linear-gradient(color-mix(in srgb, var(--a) 40%, transparent) 2px, transparent 2px),
+                             linear-gradient(90deg, color-mix(in srgb, var(--a) 40%, transparent) 2px, transparent 2px);
+           background-size: 90px 90px; mask-image: linear-gradient(transparent, #000 60%); opacity: .35;
+           animation: floor 6s linear infinite; }
+  @keyframes floor { to { background-position: 0 90px, 0 0; } }
+  /* haces de luz */
+  .beam { position: absolute; top: -10%; width: 340px; height: 130%; transform-origin: 50% 0; opacity: 0;
+          background: linear-gradient(rgba(255,255,255,.22), transparent 75%); filter: blur(18px); animation: beamIn 1.2s 3.4s forwards, sway 7s 4.6s ease-in-out infinite alternate; }
+  .beam.l { left: 30%; --r: 18deg; transform: rotate(18deg); }
+  .beam.r { right: 30%; --r: -18deg; transform: rotate(-18deg); }
+  @keyframes beamIn { to { opacity: 1; } }
+  @keyframes sway { from { transform: rotate(var(--r)); } to { transform: rotate(calc(var(--r) * -0.4)); } }
+  canvas { position: absolute; inset: 0; pointer-events: none; }
+  .title { position: absolute; top: 150px; left: 0; right: 0; text-align: center; }
+  .title small { display: block; font-family: "Orbitron"; font-weight: 800; font-size: 30px; letter-spacing: .5em; color: rgba(255,255,255,.75);
+                 opacity: 0; animation: up .8s .2s forwards; }
+  .title h1 { margin: 6px 0 0; font-family: "Orbitron"; font-weight: 900; font-size: 128px; line-height: 1; letter-spacing: 10px;
+              background: linear-gradient(90deg, var(--a), #fff 50%, var(--b)); background-size: 200% 100%; -webkit-background-clip: text; color: transparent;
+              filter: drop-shadow(0 8px 30px color-mix(in srgb, var(--a) 60%, transparent));
+              opacity: 0; animation: zoomIn 1s .4s cubic-bezier(.2,1.4,.4,1) forwards, shine 4s 2s linear infinite; }
+  @keyframes shine { to { background-position: -200% 0; } }
+  .stage { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); display: flex; align-items: flex-end; gap: 26px; }
+  .spot { width: 440px; display: flex; flex-direction: column; align-items: center; }
+  .who { text-align: center; margin-bottom: 18px; opacity: 0; transform: translateY(30px) scale(.9); }
+  .medal { width: 110px; height: 110px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center;
+           font-family: "Orbitron"; font-weight: 900; font-size: 52px; color: #1b1203; position: relative; transform: rotateY(90deg); }
+  .medal::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 3px solid rgba(255,255,255,.55); }
+  .p1 .medal { width: 140px; height: 140px; font-size: 66px; background: radial-gradient(circle at 35% 30%, #fff6c4, var(--gold) 45%, var(--gold2));
+               box-shadow: 0 0 50px rgba(255,210,63,.9), 0 0 120px rgba(255,160,40,.5); }
+  .p2 .medal { background: radial-gradient(circle at 35% 30%, #fff, var(--silver) 45%, var(--silver2)); box-shadow: 0 0 34px rgba(220,232,243,.6); }
+  .p3 .medal { background: radial-gradient(circle at 35% 30%, #ffe2c9, var(--bronze) 45%, var(--bronze2)); box-shadow: 0 0 34px rgba(255,160,100,.55); }
+  .name { font-family: "Orbitron"; font-weight: 900; font-size: 50px; text-transform: uppercase; white-space: nowrap;
+          text-shadow: 0 4px 18px rgba(0,0,0,.9); }
+  .p1 .name { font-size: 70px; background: linear-gradient(180deg, #fff, var(--gold)); -webkit-background-clip: text; color: transparent;
+              filter: drop-shadow(0 0 22px rgba(255,210,63,.75)); }
+  .stat { margin-top: 6px; font-size: 24px; font-weight: 700; letter-spacing: .16em; color: rgba(255,255,255,.75); text-transform: uppercase; }
+  .crown { font-size: 76px; line-height: 1; margin-bottom: -6px; opacity: 0; filter: drop-shadow(0 0 20px rgba(255,210,63,.9)); }
+  .block { width: 100%; border-radius: 22px 22px 0 0; position: relative; overflow: hidden; transform: scaleY(0); transform-origin: bottom;
+           display: flex; justify-content: center; padding-top: 26px; box-sizing: border-box;
+           font-family: "Orbitron"; font-weight: 900; font-size: 120px; line-height: 1; color: rgba(255,255,255,.92);
+           border: 2px solid rgba(255,255,255,.18); border-bottom: 0; }
+  .block::before { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.25) 48%, transparent 62%) -150% 0 / 250% 100% no-repeat;
+                   animation: sheen 3.5s 4s ease-in-out infinite; }
+  @keyframes sheen { 0% { background-position: -150% 0; } 55%,100% { background-position: 250% 0; } }
+  .p1 .block { height: 330px; background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 70%, #000), color-mix(in srgb, var(--a) 30%, #050913)); }
+  .p2 .block { height: 235px; background: linear-gradient(180deg, color-mix(in srgb, var(--silver2) 75%, #000), color-mix(in srgb, var(--a) 22%, #050913)); }
+  .p3 .block { height: 165px; background: linear-gradient(180deg, color-mix(in srgb, var(--bronze2) 80%, #000), color-mix(in srgb, var(--a) 22%, #050913)); }
+  .p1 { order: 2; } .p2 { order: 1; } .p3 { order: 3; }
+  /* secuencia: 3.º, 2.º, 1.º */
+  .p3 .block { animation: rise .7s .9s cubic-bezier(.2,1.3,.5,1) forwards; }
+  .p3 .who { animation: pop .7s 1.5s cubic-bezier(.2,1.5,.5,1) forwards; }
+  .p3 .medal { animation: flip .8s 1.6s forwards; }
+  .p2 .block { animation: rise .7s 1.7s cubic-bezier(.2,1.3,.5,1) forwards; }
+  .p2 .who { animation: pop .7s 2.3s cubic-bezier(.2,1.5,.5,1) forwards; }
+  .p2 .medal { animation: flip .8s 2.4s forwards; }
+  .p1 .block { animation: rise .9s 2.6s cubic-bezier(.2,1.3,.5,1) forwards; }
+  .p1 .who { animation: pop .9s 3.3s cubic-bezier(.2,1.6,.5,1) forwards; }
+  .p1 .medal { animation: flip 1s 3.4s forwards, pulse 1.8s 4.6s ease-in-out infinite; }
+  .p1 .crown { animation: drop .9s 3.9s cubic-bezier(.3,1.6,.5,1) forwards, float 3s 5s ease-in-out infinite; }
+  @keyframes rise { to { transform: scaleY(1); } }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+  @keyframes flip { to { transform: rotateY(0); } }
+  @keyframes pulse { 50% { box-shadow: 0 0 80px rgba(255,210,63,1), 0 0 180px rgba(255,160,40,.7); } }
+  @keyframes drop { from { opacity: 0; transform: translateY(-120px) rotate(-25deg); } to { opacity: 1; transform: none; } }
+  @keyframes float { 50% { transform: translateY(-10px) rotate(4deg); } }
+  @keyframes up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  @keyframes zoomIn { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+  .wait { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Orbitron"; font-weight: 800; font-size: 44px;
+          letter-spacing: .2em; color: rgba(255,255,255,.7); text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="floor"></div>
+<div class="beam l"></div><div class="beam r"></div>
+<div id="app"></div>
+<canvas id="fx" width="1920" height="1080"></canvas>
+<script src="/race-overlays/static/common.js"></script>
+<script>
+// Parámetros: clase=actual|4 · titulo=... · subtitulo=... · paleta=ffb321-ff6a3d
+//             fondo=0 (transparente, para poner encima de otra escena) · confeti=0 · lang
+const { t, esc, qs } = RO;
+const clase = qs.get('clase') || 'actual';
+const [A, B] = RO.palette('paleta', ['2bb5f5-6a5cff'])[0];
+document.body.style.setProperty('--a', A);
+document.body.style.setProperty('--b', B || A);
+if (qs.get('fondo') === '0') document.body.style.background = 'transparent';
+const CONFETTI = qs.get('confeti') !== '0';
+function spot(p, n) {
+  if (!p) return `<div class="spot p${n}"></div>`;
+  const wins = p.wins ? `${p.wins} ${p.wins === 1 ? t('win') : t('wins')}` : t('no_wins');
+  return `<div class="spot p${n}">
+    <div class="who">${n === 1 ? '<div class="crown">👑</div>' : ''}<div class="medal">${n}</div>
+      <div class="name">${esc(p.callsign)}</div><div class="stat">${wins}${p.sum != null ? ' · ' + t('sum_short') + ' ' + p.sum : ''}</div></div>
+    <div class="block">${n}</div></div>`;
+}
+function render(c) {
+  const cat = c.name.split(' - ')[0].toUpperCase();
+  const title = qs.get('titulo') || `${t('podium').toUpperCase()} ${cat}`;
+  if (!c.champion) {
+    document.getElementById('app').innerHTML = `<div class="title"><small style="animation:none;opacity:1">${esc(title)}</small></div><div class="wait">${t('still_running')}</div>`;
+    return;
+  }
+  const top = c.pilots.filter((p) => p.position).sort((a, b) => a.position - b.position);
+  document.getElementById('app').innerHTML = `
+    <div class="title"><small>${esc(qs.get('subtitulo') || t('chase_title'))}</small><h1>${esc(title)}</h1></div>
+    <div class="stage">${spot(top[0], 1)}${spot(top[1], 2)}${spot(top[2], 3)}</div>`;
+  if (CONFETTI) setTimeout(() => burst(), 4000);
+}
+// ---------- confeti ----------
+const cv = document.getElementById('fx'), ctx = cv.getContext('2d');
+let parts = [];
+function colors() { const s = getComputedStyle(document.body); return ['#ffd23f', '#ff9d1f', '#ffffff', s.getPropertyValue('--a').trim(), s.getPropertyValue('--b').trim()]; }
+function burst() {
+  const cs = colors();
+  for (let k = 0; k < 2; k++) for (let i = 0; i < 160; i++) {
+    const x = k ? 1920 : 0, ang = (k ? Math.PI * 1.25 : Math.PI * 1.75) + (Math.random() - .5) * .9, sp = 14 + Math.random() * 14;
+    parts.push({ x, y: 1000, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, w: 10 + Math.random() * 10, h: 6 + Math.random() * 6,
+                 r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cs[i % cs.length], life: 0 });
+  }
+}
+function rain() {
+  const cs = colors();
+  if (parts.length < 260) parts.push({ x: Math.random() * 1920, y: -20, vx: (Math.random() - .5) * 2, vy: 2 + Math.random() * 3,
+    w: 8 + Math.random() * 8, h: 5 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cs[Math.floor(Math.random() * cs.length)], life: 0 });
+}
+function loop() {
+  ctx.clearRect(0, 0, 1920, 1080);
+  if (CONFETTI && document.querySelector('.crown')) { rain(); rain(); }
+  parts = parts.filter(p => p.y < 1120 && p.life < 900);
+  for (const p of parts) {
+    p.life++; p.vy += .25; p.vx *= .99; if (p.vy > 6) p.vy = 6;
+    p.x += p.vx + Math.sin(p.life / 12) * .8; p.y += p.vy; p.r += p.vr;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.scale(1, Math.cos(p.life / 6));
+    ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+let shown = '';
+async function tick() {
+  try {
+    const d = await (await fetch('/race-overlays/chase.json?clases=' + encodeURIComponent(clase), { cache: 'no-store' })).json();
+    RO.setLang(d.lang);
+    const c = (d.classes || [])[0];
+    if (!c) return;
+    const key = JSON.stringify([c.name, c.champion, c.pilots.map((p) => [p.callsign, p.position, p.wins, p.sum])]);
+    if (key !== shown) { shown = key; render(c); }
+  } catch (e) {}
+}
+tick(); setInterval(tick, RO.num('intervalo', 4000));
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Race Overlays · Last race</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: rgba(10, 16, 30, 0.88);
+    --row: rgba(0, 10, 25, 0.82);
+    --accent: #00d9ff;
+    --txt: #ffffff;
+    --txt2: rgba(255, 255, 255, 0.82);
+    --muted: rgba(255, 255, 255, 0.55);
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+  body { font-family: "Rajdhani", sans-serif; color: var(--txt); }
+  /* El panel ocupa la parte de abajo; arriba queda el overlay de Próximo heat */
+  #panel {
+    position: absolute; left: 40px; right: 40px; bottom: 18px;
+    background: var(--bg); border-radius: 8px; padding: 18px 26px 20px;
+    box-sizing: border-box; display: none;
+  }
+  #panel.top { top: 18px; bottom: auto; }
+  #panel.show { display: block; animation: entra .6s ease-out; }
+  @keyframes entra { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  .head { display: flex; align-items: baseline; gap: 18px; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--accent); }
+  .lead { font-size: 1.05rem; letter-spacing: .3em; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+  .title { font-family: "Orbitron", sans-serif; font-size: 1.9rem; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+  .meta { font-size: 1.05rem; color: var(--txt2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-left: auto; }
+  .rows { display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    display: grid; align-items: center; gap: 18px;
+    grid-template-columns: 70px 330px 150px 120px 210px 1fr;
+    background: var(--row); border-left: 6px solid var(--c, var(--accent));
+    border-radius: 6px; padding: 8px 16px; min-height: 64px;
+  }
+  .pos { font-family: "Orbitron", sans-serif; font-size: 2.3rem; font-weight: 900; text-align: center; color: var(--txt); }
+  .row[data-pos="1"] .pos { color: #ffd23f; text-shadow: 0 0 14px rgba(255, 210, 63, .55); }
+  .row[data-pos="2"] .pos { color: #d7e0ea; }
+  .row[data-pos="3"] .pos { color: #e09a5a; }
+  .name { font-family: "Orbitron", sans-serif; font-size: 2rem; font-weight: 900; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 10px rgba(0,0,0,.8); }
+  .ch { display: flex; align-items: baseline; gap: 10px; }
+  .ch b { font-family: "Orbitron", sans-serif; font-size: 2.1rem; font-weight: 900; color: var(--c); filter: brightness(1.25); text-shadow: 0 0 14px var(--c); }
+  .lbl { font-size: .95rem; letter-spacing: .12em; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+  .stat { display: flex; flex-direction: column; line-height: 1.05; }
+  .stat b { font-family: "Orbitron", sans-serif; font-size: 1.75rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .laps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lap { font-family: "Orbitron", sans-serif; font-size: 1.02rem; font-weight: 700; font-variant-numeric: tabular-nums;
+         background: rgba(255,255,255,.07); border-radius: 4px; padding: 4px 8px; color: var(--txt2); }
+  .lap i { font-style: normal; color: var(--muted); margin-right: 5px; font-size: .85rem; }
+  .lap.best { background: color-mix(in srgb, var(--c) 35%, transparent); color: #fff; }
+  .nolaps { color: var(--muted); font-size: 1.1rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <div class="head">
+    <span class="lead" id="lead"></span>
+    <span class="title" id="title"></span>
+    <span class="meta" id="meta"></span>
+  </div>
+  <div class="rows" id="rows"></div>
+</div>
+<script src="/race-overlays/static/common.js"></script>
+<script>
+// Parámetros: pos=abajo|arriba · colores=0022ff,ff5500,... · lang · intervalo
+const { t, esc, qs } = RO;
+let lastRace = null;
+if (['arriba', 'top'].includes((qs.get('pos') || '').toLowerCase())) document.getElementById('panel').classList.add('top');
+
+RO.poll('/race-overlays/ultima-carrera.json', (data) => {
+  const panel = document.getElementById('panel');
+  if (!data || !data.race) { panel.classList.remove('show'); lastRace = null; return; }
+  const colors = RO.seatColors(data);
+  const firstShow = !panel.classList.contains('show') || lastRace !== data.race.id;
+  lastRace = data.race.id;
+  const r = data.race;
+  document.getElementById('lead').textContent = t('result');
+  document.getElementById('title').textContent = r.heat;
+  const consec = r.primary === 'by_consecutives';
+  document.getElementById('meta').textContent = [r.class, r.round ? t('round') + ' ' + r.round : ''].filter(Boolean).join(' · ');
+  const statLbl = consec ? t('best_consec', r.consecutives_count) : (r.primary === 'by_fastest_lap' ? t('best_lap') : t('total_time'));
+  document.getElementById('rows').innerHTML = data.pilots.map((p) => {
+    const stat = consec ? (p.consecutives ? (p.consecutives_base < r.consecutives_count ? `${p.consecutives_base}/${p.consecutives}` : p.consecutives) : '—')
+               : (r.primary === 'by_fastest_lap' ? (p.fastest_lap || '—') : (p.total_time || '—'));
+    const laps = p.lap_times.length
+      ? p.lap_times.map((x, i) => `<span class="lap${i === p.fastest_index ? ' best' : ''}"><i>${t('lap')}${i + 1}</i>${esc(x)}</span>`).join('')
+      : `<span class="nolaps">${t('no_laps')}</span>`;
+    const c = colors[(p.node ?? 0) % colors.length];
+    return `<div class="row" style="--c:${esc(c)}" data-pos="${esc(p.position)}">
+      <div class="pos">${esc(p.position)}</div>
+      <div class="name">${esc(p.callsign)}</div>
+      <div class="ch"><span class="lbl">${t('channel')}</span><b>${esc(p.channel)}</b></div>
+      <div class="stat"><span class="lbl">${t('laps')}</span><b>${esc(p.laps)}</b></div>
+      <div class="stat"><span class="lbl">${esc(statLbl)}</span><b>${esc(stat)}</b></div>
+      <div class="laps">${laps}</div>
+    </div>`;
+  }).join('');
+  if (firstShow) { panel.classList.remove('show'); void panel.offsetWidth; }
+  panel.classList.add('show');
+});
+</script>
+</body>
+</html>

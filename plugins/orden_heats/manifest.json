@@ -1,0 +1,12 @@
+{
+    "domain": "orden_heats",
+    "name": "Orden de heats entre clases",
+    "author": "Mauricio Bridge",
+    "author_uri": "https://github.com/mbridge1eafit",
+    "description": "Runs heats in a fixed sequence across classes (e.g. Sport and Pro interleaved): after saving a heat it moves to the next heat of the sequence. Can generate the interleaved sequence from a list of classes.",
+    "documentation_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/docs/eventos.md",
+    "license": "MIT",
+    "license_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/LICENSE",
+    "version": "1.1.0",
+    "required_rhapi_version": "1.2"
+}

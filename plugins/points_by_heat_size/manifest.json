@@ -1,0 +1,12 @@
+{
+    "domain": "points_by_heat_size",
+    "name": "Points by Heat Size",
+    "author": "Mauricio Bridge",
+    "author_uri": "https://github.com/mbridge1eafit",
+    "description": "Race points method whose table depends on how many pilots are in the heat (e.g. 4 pilots: 10,9,8,5 / 3 pilots: 10,8,5). Pilots with 0 laps are separated by holeshot time. Optional DNF rule: pilots short of the laps to finish get 0. Tables are editable in Settings.",
+    "documentation_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/docs/eventos.md",
+    "license": "MIT",
+    "license_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/LICENSE",
+    "version": "1.3.0",
+    "required_rhapi_version": "1.0"
+}

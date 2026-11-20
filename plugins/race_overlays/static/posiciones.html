@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Race Overlays · Standings</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --txt: #fff; --muted: rgba(255,255,255,.55); --row: rgba(6,12,26,.78); }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+  body { font-family: "Rajdhani", sans-serif; color: var(--txt); }
+  #wrap { position: absolute; inset: 34px 48px 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .col { display: flex; flex-direction: column; min-height: 0; }
+  .head { display: flex; align-items: flex-end; gap: 18px; padding: 0 6px 12px; margin-bottom: 14px;
+          border-bottom: 4px solid transparent;
+          border-image: linear-gradient(90deg, var(--a), var(--b)) 1; }
+  .head h2 { margin: 0; font-family: "Orbitron"; font-weight: 900; font-size: 64px; line-height: .9; letter-spacing: 3px;
+             background: linear-gradient(90deg, var(--a), var(--b)); -webkit-background-clip: text; color: transparent;
+             filter: drop-shadow(0 4px 14px rgba(0,0,0,.6)); }
+  .head .info { margin-left: auto; text-align: right; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .head .info small { display: block; font-size: 17px; color: var(--muted); }
+  .head .info b { font-family: "Orbitron"; font-size: 28px; color: #fff; }
+  .cols-lbl { display: grid; grid-template-columns: 84px 1fr 150px; padding: 0 18px 6px; font-size: 16px;
+              font-weight: 700; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+  .cols-lbl span:last-child { text-align: right; }
+  .rows { display: flex; flex-direction: column; gap: 9px; }
+  .row { position: relative; display: grid; grid-template-columns: 84px 1fr 150px; align-items: center;
+         height: 78px; padding: 0 18px 0 8px; border-radius: 14px; background: var(--row);
+         border: 1px solid rgba(255,255,255,.07); box-shadow: 0 6px 18px rgba(0,0,0,.35);
+         animation: entra .5s ease-out; overflow: hidden; }
+  .row.top { background: linear-gradient(90deg, color-mix(in srgb, var(--a) 26%, rgba(6,12,26,.82)), rgba(6,12,26,.80) 60%);
+             border-color: color-mix(in srgb, var(--a) 55%, transparent); }
+  .row.top::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+             background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.14) 48%, transparent 60%) -150% 0 / 250% 100% no-repeat;
+             animation: sheen 4.5s ease-in-out infinite; }
+  .cutline { display: flex; align-items: center; gap: 12px; margin: 2px 6px; font-size: 15px; font-weight: 700;
+             letter-spacing: .25em; color: var(--a); text-transform: uppercase; }
+  .cutline::before, .cutline::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--a), transparent); }
+  @keyframes entra { from { transform: translateX(-18px); } to { transform: none; } }
+  @keyframes sheen { 0% { background-position: -150% 0; } 55%,100% { background-position: 250% 0; } }
+  .pos { width: 60px; height: 60px; border-radius: 12px; display: grid; place-items: center;
+         font-family: "Orbitron"; font-weight: 900; font-size: 30px; background: rgba(255,255,255,.08); color: #fff; }
+  .row.top .pos { background: linear-gradient(135deg, var(--a), var(--b)); color: #0a0f1c; }
+  .row[data-pos="1"] .pos { box-shadow: 0 0 22px color-mix(in srgb, var(--a) 70%, transparent); }
+  .name { min-width: 0; }
+  .name b { display: block; font-family: "Orbitron"; font-weight: 800; font-size: 34px; line-height: 1; text-transform: uppercase;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 8px rgba(0,0,0,.8); }
+  .name small { display: block; margin-top: 4px; font-size: 17px; color: var(--muted); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .pts { text-align: right; font-family: "Orbitron"; font-weight: 900; font-size: 46px; font-variant-numeric: tabular-nums; }
+  .pts i { font-style: normal; font-family: "Rajdhani"; font-size: 18px; font-weight: 700; color: var(--muted); margin-left: 6px; letter-spacing: .1em; }
+  .row.top .pts { color: color-mix(in srgb, var(--a) 60%, white); }
+</style>
+</head>
+<body>
+<div id="wrap"></div>
+<script src="/race-overlays/static/common.js"></script>
+<script>
+// Parámetros: clases=2,3|actual|todas · titulos=PRO,SPORT · zona=4 (0 = sin zona de final)
+//             paleta=ffb321-ff6a3d,2bb5f5-6a5cff · lang · intervalo
+const { t, esc, qs } = RO;
+const ZONE = RO.num('zona', 4);
+const TITLES = RO.list('titulos');
+const PALETTE = RO.palette('paleta', ['ffb321-ff6a3d', '2bb5f5-6a5cff', '22d63a-0fb5a0']);
+const url = '/race-overlays/posiciones.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
+
+RO.poll(url, (data) => {
+  const classes = data.classes || [];
+  const wrap = document.getElementById('wrap');
+  wrap.style.gridTemplateColumns = `repeat(${Math.max(1, classes.length)}, 1fr)`;
+  wrap.innerHTML = classes.map((c, ci) => {
+    const title = (TITLES && TITLES[ci]) || c.name.split(' - ')[0].toUpperCase();
+    const [a, b] = PALETTE[ci % PALETTE.length];
+    const anyRace = c.pilots.some((p) => p.races > 0);
+    const rows = c.pilots.map((p, i) => {
+      const pos = anyRace && p.position ? p.position : '—';
+      const top = anyRace && ZONE > 0 && p.position && p.position <= ZONE;
+      const cut = anyRace && ZONE > 0 && i === ZONE - 1 && c.pilots.length > ZONE;
+      const wins = p.wins ? ' · ' + p.wins + ' ' + (p.wins === 1 ? t('win') : t('wins')) : '';
+      return `<div class="row${top ? ' top' : ''}" data-pos="${pos}" style="animation-delay:${i * 60}ms">
+        <div class="pos">${pos}</div>
+        <div class="name"><b>${esc(p.callsign)}</b><small>${p.races}/${p.flights} ${t('flights')}${wins}</small></div>
+        <div class="pts">${p.points}<i>${t('pts')}</i></div>
+      </div>` + (cut ? `<div class="cutline">${t('final_zone')}</div>` : '');
+    }).join('');
+    return `<section class="col" style="--a:${esc(a)};--b:${esc(b || a)}">
+      <div class="head"><h2>${esc(title)}</h2><div class="info"><small>${t('heats')}</small><b>${c.heats_done}/${c.heats}</b></div></div>
+      <div class="cols-lbl"><span>${t('pos')}</span><span>${t('pilot')}</span><span>${t('points')}</span></div>
+      <div class="rows">${rows}</div>
+    </section>`;
+  }).join('');
+});
+</script>
+</body>
+</html>
