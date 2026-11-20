@@ -65,11 +65,11 @@
 <script src="/skr/static/common.js"></script>
 <script>
 // Parámetros: clases=actual|4|4,5 · titulos=PRO,SPORT · subtitulo=... · paleta=ffb321-ff6a3d,2bb5f5-6a5cff
-//             lang · intervalo. Aces necesarios, carreras nulas e Ironman: ajustes del ranking de la clase.
+//             aces=2 (solo si la clase no usa el ranking de chase_the_ace_rank) · lang · intervalo
 const { t, esc, qs } = RO;
 const TITLES = RO.list('titulos');
 const PALETTE = RO.palette('paleta', ['ffb321-ff6a3d', '2bb5f5-6a5cff', '22d63a-0fb5a0']);
-const url = '/skr/chase.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual');
+const url = '/skr/chase.json?clases=' + encodeURIComponent(qs.get('clases') || 'actual') + (qs.get('aces') ? '&aces=' + encodeURIComponent(qs.get('aces')) : '');
 
 RO.poll(url, (data) => {
   const cls = data.classes || [];

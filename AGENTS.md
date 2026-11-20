@@ -7,13 +7,14 @@ este kit en el timer RotorHazard de alguien. Las guías para personas están en 
 
 | Ruta | Corre en | Lenguaje | Notas |
 |---|---|---|---|
-| `plugins/<dominio>/` | Raspberry Pi, dentro de RotorHazard (`~/rh-data/plugins/<dominio>/`) | Python 3.11 + RHAPI | Cada carpeta es un plugin independiente con `manifest.json` y `__init__.py` (`initialize(rhapi)`). |
-| `plugins/skr_overlays/static/` | navegador / fuente de navegador de OBS | HTML + JS sin dependencias | `common.js` tiene el i18n (es/en) y los parámetros de URL. |
-| `obs/scripts/rotorhazard_dvr.lua` | dentro de OBS (Windows, macOS, Linux) | Lua 5.1 / LuaJIT (obslua) | Lee `[RotorHazardDVR]` del perfil de OBS. |
-| `obs/obs-ws.mjs` | PC del usuario | Node.js 22+ | Cliente obs-websocket v5 para pruebas. |
+| `funciones/<función>/` | — | — | Una carpeta por función, con su `README.md` (la línea `> …` es la descripción que lista el instalador). Las funciones no dependen entre sí ni de plugins de terceros. |
+| `funciones/<función>/<dominio>/` | Raspberry Pi, dentro de RotorHazard (`~/rh-data/plugins/<dominio>/`) | Python 3.11 + RHAPI | El plugin: `manifest.json` y `__init__.py` (`initialize(rhapi)`). |
+| `funciones/overlays/skr_overlays/static/` | fuente de navegador de OBS | HTML + JS sin dependencias | `common.js` tiene el i18n (es/en) y los parámetros de URL. `/skr/carrera.json` alimenta nodos y próximo heat. |
+| `funciones/obs-escena-automatica/rotorhazard_dvr.lua` | dentro de OBS (Windows, macOS, Linux) | Lua 5.1 / LuaJIT (obslua) | Lee `[RotorHazardDVR]` del perfil de OBS. |
+| `funciones/obs-escena-automatica/obs-ws.mjs` | PC del usuario | Node.js 22+ | Cliente obs-websocket v5 para pruebas. |
 | `mcp-server/` | PC del usuario | TypeScript, Node.js ≥ 20.3 | Servidor MCP (stdio). Configuración solo por variables de entorno (`mcp-server/README.md`). |
 | `herramientas/espectro/` | PC del usuario | Node.js | Usa `socket.io-client` de `mcp-server/node_modules`. |
-| `scripts/instalar-plugins.{sh,ps1}` | PC del usuario | bash / PowerShell | Copia plugins por SSH y reinicia el servicio. |
+| `scripts/instalar.{sh,ps1}` | PC del usuario | bash 3.2+ / PowerShell | Instala por SSH las funciones elegidas y reinicia el servicio. Sin argumentos lista las funciones. |
 | `tests/` | PC | Python | Pruebas sin RotorHazard (módulos simulados). |
 
 Referencias de RotorHazard: `doc/Plugins.md` y `doc/RHAPI.md` del repo oficial (versión 4.5.1 en las pruebas).
@@ -24,7 +25,7 @@ multigp.com → Organizers → Rule Book).
 
 - IP (o nombre) de la Pi y usuario SSH; ruta de su clave SSH.
 - Credenciales de admin de la web de RotorHazard, si las cambió (por defecto `admin` / `rotorhazard`).
-- Qué plugins quiere instalar.
+- Qué funciones quiere instalar (lista: `./scripts/instalar.sh` sin argumentos).
 - Para OBS: IP del PC de OBS, sistema operativo, contraseña de obs-websocket, nombres exactos de las escenas
   (puedes listarlos con `GetSceneList`), carpeta de grabación tal como la ve ese PC.
 - Ids de clase para los overlays y para `orden_heats`; reglas de su final (Aces, Ironman).
@@ -45,19 +46,21 @@ multigp.com → Organizers → Rule Book).
    pida. Para probar el plugin usa sus botones o escenas que no estén al aire.
 7. No publiques ni copies credenciales (contraseña de obs-websocket, claves SSH, tokens) en archivos del repo.
 
-## Instalar los plugins
+## Instalar funciones
 
 Preferido (el script guarda la versión anterior fuera de `plugins/` y reinicia):
 
 ```bash
-SSH_KEY=~/.ssh/<clave> ./scripts/instalar-plugins.sh pi@<IP> <plugin> [<plugin> ...]
+SSH_KEY=~/.ssh/<clave> ./scripts/instalar.sh pi@<IP> <función> [<función> ...]   # DRY_RUN=1 para simular
 ```
 
 ```powershell
-.\scripts\instalar-plugins.ps1 -Destino pi@<IP> -Clave <clave> -Plugins <plugin>,<plugin>
+.\scripts\instalar.ps1 -Destino pi@<IP> -Clave <clave> -Funciones <función>,<función>   # -Simular para simular
 ```
 
-Con el MCP: `rh_install_plugin_from_file path='<repo>/plugins/<plugin>' restart=true`.
+Con el MCP: `rh_install_plugin_from_file path='<repo>/funciones/<función>/<dominio>' restart=true`.
+Después revisa el README de la función: `obs-escena-automatica` necesita configurar OBS y, para el DVR descartado,
+cargar `rotorhazard_dvr.lua` en OBS (Herramientas → Scripts); eso lo hace el usuario en el PC de OBS.
 A mano: copiar la carpeta a `~/rh-data/plugins/` y `sudo systemctl restart rotorhazard`.
 
 **No dejes copias dentro de `~/rh-data/plugins/`** (p. ej. `skr_overlays.bak/`): RotorHazard intenta cargarlas
@@ -70,7 +73,8 @@ como plugins.
   `skr_overlays: /skr/... listos`).
 - Overlays: `curl -s http://<IP>:5000/skr/posiciones.json?clases=todas` devuelve JSON con `classes`,
   `seat_colors` y `lang`.
-- OBS: botón *Probar conexión* del panel, o `node obs/obs-ws.mjs '[["GetVersion"]]'` con `OBS_URL`/`OBS_PASSWORD`.
+- Overlays en vivo: `curl -s http://<IP>:5000/skr/carrera.json` devuelve `status`, `heat` y `seats`.
+- OBS: botón *Probar conexión* del panel, o `node funciones/obs-escena-automatica/obs-ws.mjs '[["GetVersion"]]'` con `OBS_URL`/`OBS_PASSWORD`.
 - Chase the Ace: `rh_get_class_results` de la clase de la final (o el overlay `chase.json`).
 
 ## Configurar sin la interfaz web
@@ -85,13 +89,15 @@ como plugins.
 ```bash
 python tests/test_chase_the_ace.py
 python tests/test_obs_auto_escena.py
-python -m py_compile plugins/*/__init__.py
-node --check plugins/skr_overlays/static/common.js
+python tests/test_skr_overlays.py
+python -m py_compile funciones/*/*/__init__.py
+node --check funciones/overlays/skr_overlays/static/common.js
+DRY_RUN=1 ./scripts/instalar.sh pi@x todas
 cd mcp-server && npm install && npm run build && npx tsx scripts/marshal-analysis.test.ts
 ```
 
 Para los overlays, las páginas se pueden abrir sin la Pi sirviendo `static/` junto a un JSON de ejemplo
-(ver el formato en `plugins/skr_overlays/__init__.py`).
+(ver el formato en `funciones/overlays/skr_overlays/__init__.py`).
 `test_obs_auto_escena.py` simula OBS; el script Lua y la conexión real no tienen prueba automática: pruébalos con
 OBS real y una carrera de prueba (staging → detener → guardar, y otra con descartar).
 
@@ -100,6 +106,8 @@ OBS real y una carrera de prueba (staging → detener → guardar, y otra con de
 - Textos de la interfaz en español en los plugins `obs_auto_escena` y `orden_heats`; en inglés en
   `chase_the_ace_rank` (así salieron; no los mezcles dentro de un mismo plugin).
 - Sin valores del evento original en el código (IPs, nombres de escenas o de clases): todo va en opciones o en la URL.
-- Al cambiar un plugin, sube `version` en su `manifest.json` y actualiza `docs/plugins.md`.
+- Al cambiar un plugin, sube `version` en su `manifest.json` y actualiza el README de su función.
+- Una función nueva = carpeta nueva en `funciones/` con su plugin y un README que empiece con `# Título` y una
+  línea `> descripción`. Sin dependencias de plugins de terceros: si hace falta un dato de RotorHazard, léelo con RHAPI.
 - Nada de dependencias nuevas en los plugins: el entorno de RotorHazard en la Pi solo trae lo suyo
   (Flask, gevent, websocket-client…).

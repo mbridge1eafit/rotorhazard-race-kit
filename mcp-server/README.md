@@ -101,7 +101,7 @@ Selección de carrera en todas: sin argumentos = última guardada; o `race_id`, 
 
 **Timer / RF**: `rh_get_frequencies` (canal, MHz, EnterAt/ExitAt, picos RSSI), `rh_set_frequency` (banda+canal o MHz), `rh_set_frequency_preset` (RB-4, RB-8, IMD5C, All-N1), `rh_set_node_tuning`, `rh_list_profiles`, `rh_set_profile`, `rh_update_profile`, `rh_set_min_lap`, `rh_set_option`, `rh_set_config`.
 
-**Plugins**: `rh_list_installed_plugins`, `rh_search_community_plugins`, `rh_install_plugin` (descarga en este PC con verificación SHA-256 y sube al timer, o la Pi descarga), `rh_install_plugin_from_url`, `rh_install_plugin_from_file` (carpeta o .zip de este PC, p. ej. `../plugins/obs_auto_escena`), `rh_update_all_plugins` (con `dry_run`), `rh_remove_plugin`.
+**Plugins**: `rh_list_installed_plugins`, `rh_search_community_plugins`, `rh_install_plugin` (descarga en este PC con verificación SHA-256 y sube al timer, o la Pi descarga), `rh_install_plugin_from_url`, `rh_install_plugin_from_file` (carpeta o .zip de este PC, p. ej. `../funciones/obs-escena-automatica/obs_auto_escena`), `rh_update_all_plugins` (con `dry_run`), `rh_remove_plugin`.
 
 **Datos**: `rh_backup_database`, `rh_list_backups`, `rh_download_backup`, `rh_restore_database`, `rh_reset_database`, `rh_list_exporters`, `rh_export_data`, `rh_import_data`.
 

@@ -1,21 +1,27 @@
-'''SKR Overlays: páginas para OBS (browser source, 1920x1080, fondo transparente) que leen la
-base de datos de RotorHazard, así que siguen funcionando después de reiniciar el servidor.
+'''SKR Overlays: páginas para OBS (browser source, 1920x1080, fondo transparente). No dependen de
+otros plugins: leen RotorHazard directamente (la carrera en curso y la base de datos).
 
-/skr/ultima-carrera   Resultado de la última carrera guardada: posición, piloto, canal,
-                                vueltas, mejor tiempo y el tiempo de cada vuelta.
-/skr/posiciones       Tablas de una o varias clases lado a lado (posición, piloto, puntos,
-                                baterías corridas y victorias). ?clases=2,3 | actual | todas
-/skr/chase            Final Chase the Ace: victorias, puesto en cada carrera y suma.
-                                ?clases=actual (por defecto) | 4 | 4,5
+En vivo (/skr/carrera.json, la carrera en curso):
+/skr/nodos            Overlay de cada piloto sobre su cuadro de video: posición, piloto, canal,
+                      vueltas, última y mejor vuelta. ?nodos=1,2,3,4&disposicion=2x2
+/skr/proximo-heat     Pilotos del heat actual con su canal (antes de que arranque la carrera).
+
+Desde la base de datos (sobreviven a reinicios):
+/skr/ultima-carrera   Resultado de la última carrera guardada con el tiempo de cada vuelta.
+/skr/posiciones       Tablas de una o varias clases lado a lado. ?clases=2,3 | actual | todas
+/skr/chase            Final Chase the Ace: Aces, puesto en cada carrera y suma. ?clases=actual | 4
 /skr/podio            Podio animado de una final con campeón. ?clase=actual | 4
 
 Cada página tiene su JSON (<página>.json). Los parámetros de presentación (idioma, colores,
-títulos, zona de final...) van en la URL de la página: ver docs/overlays.md.
+títulos, zona de final...) van en la URL de la página: ver funciones/overlays/README.md.
+Chase the Ace usa el ranking del plugin chase_the_ace_rank si la clase lo tiene (carreras nulas,
+Ironman); si no, calcula aquí lo básico: primero en N victorias y suma de puestos.
 
 Los colores de cada puesto salen de Ajustes → LED → colores de puesto (o los de fábrica), y el
 idioma por defecto es el de la interfaz de RotorHazard.
 '''
 
+import json
 import logging
 import os
 
@@ -91,6 +97,78 @@ def ui_language(rhapi):
     except Exception:
         lang = None
     return (lang or 'en').split('-')[0].lower()
+
+
+STATUS = {0: 'ready', 3: 'staging', 1: 'racing', 2: 'done'}  # RHRace.RaceStatus
+
+
+def _ms(value):
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return None
+    return v if v > 0 else None
+
+
+def seat_channels(rhapi):
+    '''[(etiqueta, MHz)] por puesto según el perfil de frecuencias activo.'''
+    out = []
+    try:
+        fs = rhapi.db.frequencyset_by_id(rhapi.race.frequencyset)
+        data = json.loads(fs.frequencies) if isinstance(fs.frequencies, str) else (fs.frequencies or {})
+        bands, chans, freqs = data.get('b') or [], data.get('c') or [], data.get('f') or []
+        for i, f in enumerate(freqs):
+            b = bands[i] if i < len(bands) else None
+            c = chans[i] if i < len(chans) else None
+            label = '{}{}'.format(b, c) if b and c else channel_label(f)
+            out.append((label if f else '', f or 0))
+    except Exception as ex:
+        logger.debug('skr_overlays: sin perfil de frecuencias: %s', ex)
+    return out
+
+
+def build_live(rhapi):
+    '''La carrera en curso: un renglón por puesto con piloto, canal, posición y vueltas.'''
+    db = rhapi.db
+    race = rhapi.race
+    status = STATUS.get(int(race.status), str(race.status))
+    heat = db.heat_by_id(race.heat) if race.heat else None
+    rc = db.raceclass_by_id(heat.class_id) if heat and heat.class_id else None
+    fmt = race.raceformat
+    results = race.results or {}
+    primary = (results.get('meta') or {}).get('primary_leaderboard') or 'by_race_time'
+    rows = {r.get('node'): r for r in (results.get(primary) or [])}
+    finished = race.seats_finished or {}
+    channels = seat_channels(rhapi)
+    show_results = status in ('racing', 'done')
+
+    seats = []
+    for i, pid in enumerate(race.pilots or []):
+        pilot = db.pilot_by_id(pid) if pid and pid > 0 else None
+        label, freq = channels[i] if i < len(channels) else ('', 0)
+        row = rows.get(i) if show_results else None
+        seats.append({
+            'seat': i,
+            'active': pilot is not None,
+            'callsign': pilot.callsign if pilot else '',
+            'name': pilot.name if pilot else '',
+            'channel': label,
+            'frequency': freq,
+            'position': row.get('position') if row and (row.get('laps') or status == 'done') else None,
+            'laps': int(row.get('laps') or 0) if row else 0,
+            'last_lap': fmt_time(_ms(row.get('last_lap_raw')) / 1000.0) if row and _ms(row.get('last_lap_raw')) else '',
+            'fastest_lap': fmt_time(_ms(row.get('fastest_lap_raw')) / 1000.0) if row and _ms(row.get('fastest_lap_raw')) else '',
+            'finished': bool(finished.get(i)) if hasattr(finished, 'get') else False,
+        })
+    return {
+        'status': status,
+        'heat': (heat.display_name if heat else '') or ('Heat {}'.format(race.heat) if race.heat else ''),
+        'class': rc.name if rc else '',
+        'round': race.round,
+        'laps_to_win': getattr(fmt, 'number_laps_win', 0) or 0,
+        'race_time_sec': 0 if getattr(fmt, 'unlimited_time', 0) else (getattr(fmt, 'race_time_sec', 0) or 0),
+        'seats': seats,
+    }
 
 
 def build_last_race(rhapi):
@@ -198,7 +276,35 @@ def build_standings(rhapi, class_ids):
     return {'classes': out}
 
 
-def build_chase(rhapi, class_ids):
+def chase_basic(races, wins_needed):
+    '''Sin el plugin chase_the_ace_rank: primero en N victorias, resto por menor suma de puestos y
+    desempate por la última carrera. races = [{pilot_id: puesto}] en orden. No sabe de carreras
+    nulas ni Ironman.'''
+    stats = {}
+    champion = None
+    counted = 0
+    for n, race in enumerate(races):
+        counted = n + 1
+        for pid, pos in race.items():
+            st = stats.setdefault(pid, {'wins': 0, 'sum': 0, 'last': None, 'results': [None] * len(races)})
+            st['sum'] += pos
+            st['last'] = pos
+            st['results'][n] = pos
+            if pos == 1:
+                st['wins'] += 1
+                if champion is None and st['wins'] >= wins_needed:
+                    champion = pid
+        if champion is not None:
+            break
+    for st in stats.values():
+        st['results'] = st['results'][:counted]
+    order = sorted(stats, key=lambda pid: (0 if pid == champion else 1,
+                                           -stats[pid]['wins'] if champion is None else 0,
+                                           stats[pid]['sum'], stats[pid]['last'] or 99))
+    return order, stats, champion, counted
+
+
+def build_chase(rhapi, class_ids, wins_needed=2):
     '''Final Chase the Ace: Aces, suma de puestos y puesto en cada carrera.
     Con el ranking "MultiGP Chase the Ace" del plugin chase_the_ace_rank usa sus datos
     (carreras nulas, Ironman, Aces necesarios); con otro ranking los calcula aquí.'''
@@ -217,25 +323,30 @@ def build_chase(rhapi, class_ids):
         info = ((ranking.get('meta') or {}).get('chase_the_ace') if isinstance(ranking, dict) else None) or {}
         src = _ranking_rows(ranking)
 
-        history = {}
         n_races = info.get('races')
+        rows = []
+        seen = set()
+        champion = None
         if not info:
+            # la clase no usa el ranking de chase_the_ace_rank: cálculo propio
             races = []
             for h in db.heats_by_class(cid):
                 for race in db.races_by_heat(h.id):
                     res = db.race_results(race)
                     if res:
-                        races.append((race.id, res[res['meta']['primary_leaderboard']]))
+                        lb = sorted(res[res['meta']['primary_leaderboard']], key=lambda l: (l.get('position') or 99))
+                        races.append((race.id, {l['pilot_id']: i for i, l in enumerate(lb, start=1)}))
             races.sort(key=lambda r: r[0])
-            n_races = len(races)
-            for n, (_, lb) in enumerate(races):
-                ordered = sorted(lb, key=lambda l: (l.get('position') or 99))
-                for idx, line in enumerate(ordered, start=1):
-                    history.setdefault(line['pilot_id'], [None] * n_races)[n] = idx
+            order, stats, champ_id, n_races = chase_basic([r for _, r in races], wins_needed)
+            src = []
+            for pos, pid in enumerate(order, start=1):
+                pilot = db.pilot_by_id(pid)
+                st = stats[pid]
+                src.append({'pilot_id': pid, 'callsign': pilot.callsign if pilot else '?', 'position': pos,
+                            'wins': st['wins'], 'position_sum': st['sum'], 'last_position': st['last'],
+                            'status': 'Champion' if pid == champ_id else '', 'results': st['results']})
+            info = {'wins_needed': wins_needed, 'races': n_races}
 
-        rows = []
-        seen = set()
-        champion = None
         for r in src:
             pid = r.get('pilot_id')
             seen.add(pid)
@@ -244,17 +355,17 @@ def build_chase(rhapi, class_ids):
             rows.append({'position': r.get('position'), 'callsign': r.get('callsign') or '',
                          'wins': r.get('wins') or 0, 'sum': r.get('position_sum'),
                          'last': r.get('last_position'), 'champion': bool(r.get('status')),
-                         'results': r.get('results') if 'results' in r else history.get(pid, [])})
+                         'results': r.get('results') or []})
         for pid in seeds:
             if pid in seen:
                 continue
             pilot = db.pilot_by_id(pid)
             rows.append({'position': None, 'callsign': pilot.callsign if pilot else '?', 'wins': 0,
                          'sum': None, 'last': None, 'champion': False, 'results': []})
-        wins_needed = info.get('wins_needed') or 2
+        need = info.get('wins_needed') or wins_needed
         out.append({'id': cid, 'name': rc.name, 'races': n_races or 0, 'champion': champion,
-                    'wins_needed': wins_needed,
-                    'max_races': info.get('max_races') or (wins_needed - 1) * max(len(rows), 1) + 1,
+                    'wins_needed': need,
+                    'max_races': info.get('max_races') or (need - 1) * max(len(rows), 1) + 1,
                     'void_races': info.get('void_races') or [],
                     'ironman': info.get('ironman'),
                     'pilots': rows})
@@ -292,6 +403,18 @@ def initialize(rhapi):
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
 
+    @bp.route(PREFIX + '/carrera.json')
+    def live_json():
+        return reply(lambda: build_live(rhapi), 'la carrera en curso')
+
+    @bp.route(PREFIX + '/nodos')
+    def nodes_page():
+        return page('nodos')
+
+    @bp.route(PREFIX + '/proximo-heat')
+    def upcoming_page():
+        return page('proximo-heat')
+
     @bp.route(PREFIX + '/ultima-carrera')
     def last_race_page():
         return page('ultima-carrera')
@@ -315,7 +438,11 @@ def initialize(rhapi):
 
     @bp.route(PREFIX + '/chase.json')
     def chase_json():
-        return reply(lambda: build_chase(rhapi, parse_classes(rhapi, request.args.get('clases'))),
+        try:
+            aces = max(1, int(request.args.get('aces') or 2))
+        except ValueError:
+            aces = 2
+        return reply(lambda: build_chase(rhapi, parse_classes(rhapi, request.args.get('clases')), aces),
                      'chase the ace')
 
     @bp.route(PREFIX + '/podio')
@@ -323,4 +450,4 @@ def initialize(rhapi):
         return page('podio')
 
     rhapi.ui.blueprint_add(bp)
-    logger.info('skr_overlays: %s/{ultima-carrera,posiciones,chase,podio} listos', PREFIX)
+    logger.info('skr_overlays: %s/{nodos,proximo-heat,ultima-carrera,posiciones,chase,podio} listos', PREFIX)

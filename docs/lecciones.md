@@ -54,6 +54,8 @@ Problemas reales del evento original (RotorHazard 4.5.1 en Pi 3B, OBS en una Mac
 
 ## Stream Overlays 1.5.1
 
+Los overlays de este repo ya no lo necesitan ([overlays](../funciones/overlays)); esto queda por si lo sigues usando.
+
 - El overlay de **próximo heat** mostraba el canal del puesto siguiente (mezclaba los datos de los nodos n y n+1)
   en `static/dist/heat.js`. Se corrigió a mano en la Pi; revisa si tu versión lo trae corregido.
 - Los textos fijos del plugin están en inglés; se tradujeron a mano en sus `.js`/`.css`. Esos cambios se pierden

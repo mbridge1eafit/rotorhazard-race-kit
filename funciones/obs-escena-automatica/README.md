@@ -1,4 +1,18 @@
-# OBS: cambio automático de escena y DVR por carrera
+# OBS: cambio automático de escena y DVR por carrera (`obs_auto_escena`)
+
+> Cambia la escena de OBS al iniciar y terminar cada carrera y graba un video por carrera (OBS en Windows, Mac o Linux).
+
+Contiene el plugin `obs_auto_escena` (va en la Pi), el script `rotorhazard_dvr.lua` (va en OBS, opcional, para las
+carreras descartadas) y `obs-ws.mjs` (para probar OBS desde la terminal). No necesita otros plugins.
+
+## Instalar
+
+```bash
+./scripts/instalar.sh pi@IP-DE-LA-PI obs-escena-automatica
+```
+
+En Windows: `.\scripts\instalar.ps1 -Destino pi@IP-DE-LA-PI -Funciones obs-escena-automatica`. O copia la carpeta
+`obs_auto_escena` a `~/rh-data/plugins/` y reinicia RotorHazard. Después sigue los pasos de abajo.
 
 El plugin `obs_auto_escena` corre en la Raspberry Pi y le habla a OBS por la red con **obs-websocket v5**
 (viene incluido en OBS 28 o más nuevo). OBS puede estar en **Windows, macOS o Linux**: el plugin no cambia.
@@ -86,7 +100,7 @@ Si en RotorHazard se **descartan** las vueltas, el plugin cierra el DVR de esa c
 | Mandarlo a la papelera | Papelera de reciclaje (Windows), Papelera del disco (Mac), papelera del escritorio (Linux, con `gio`) |
 | Borrarlo | se borra definitivamente |
 
-Mover, papelera y borrar los hace el script **`obs/scripts/rotorhazard_dvr.lua`**, que corre dentro de OBS
+Mover, papelera y borrar los hace el script **`rotorhazard_dvr.lua`** (en esta carpeta), que corre dentro de OBS
 (el archivo está en el PC de OBS, no en la Pi; en macOS, además, el sistema no deja tocar los discos
 externos por SSH). Para cargarlo: **Herramientas → Scripts → "+"** y elige el archivo. En el log de
 scripts debe salir `RotorHazard DVR: listo (Windows|macOS|Linux)`.
@@ -134,10 +148,26 @@ durante la transmisión, usa *Moverlo a una subcarpeta*.
 | El DVR descartado no se mueve | falta cargar `rotorhazard_dvr.lua` en OBS (Herramientas → Scripts) |
 | Dejó de funcionar de un día para otro | cambió la IP del PC de OBS (reserva la IP en el router) |
 
-Para probar OBS desde la terminal está `obs/obs-ws.mjs` (Node.js 22+):
+Para probar OBS desde la terminal está `obs-ws.mjs` (en esta carpeta, Node.js 22+):
 
 ```bash
-OBS_URL=ws://192.168.1.50:4455 OBS_PASSWORD=... node obs/obs-ws.mjs '[["GetVersion"],["GetSceneList"]]'
+OBS_URL=ws://192.168.1.50:4455 OBS_PASSWORD=... node funciones/obs-escena-automatica/obs-ws.mjs '[["GetVersion"],["GetSceneList"]]'
 ```
 
-En PowerShell: `$env:OBS_URL="ws://192.168.1.50:4455"; $env:OBS_PASSWORD="..."; node obs/obs-ws.mjs '[["GetVersion"]]'`.
+En PowerShell: `$env:OBS_URL="ws://192.168.1.50:4455"; $env:OBS_PASSWORD="..."; node funciones/obs-escena-automatica/obs-ws.mjs '[["GetVersion"]]'`.
+
+## Referencia
+
+| Opción (`config.json` → `OBS_AUTO_ESCENA`) | Por defecto | |
+|---|---|---|
+| `enabled` | sí | cambio automático de escena |
+| `host` / `port` / `password` | — / 4455 / — | PC de OBS |
+| `scene_race` / `scene_next` | `Carrera` / `Proximo Heat` | escenas (vacío = no cambiar) |
+| `trigger_next` | `save` | `save` = al guardar/descartar, `stop` = al detener |
+| `delay_next` | 3 | segundos antes de cambiar al terminar |
+| `rec_enabled` / `rec_path` / `rec_stop_delay` | no / — / 3 | DVR por carrera |
+| `rec_discard` / `rec_discard_dir` | `move` / `descartadas` | DVR descartado: `keep`, `move`, `trash`, `delete` |
+
+Escucha `RACE_STAGE`, `RACE_STOP`, `LAPS_SAVE` y `LAPS_DISCARD`. Para el DVR descartado escribe en el perfil de
+OBS la sección `[RotorHazardDVR]` (`Discard`, `Mode`, `Folder`, `Subfolder`), que lee `rotorhazard_dvr.lua`.
+Pruebas: `python tests/test_obs_auto_escena.py`.

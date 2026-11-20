@@ -41,7 +41,7 @@ rhui.UIFieldType = type('T', (), {'CHECKBOX': 'c', 'TEXT': 't', 'BASIC_INT': 'i'
 sys.modules['RHUI'] = rhui
 
 spec = importlib.util.spec_from_file_location(
-    'oae', os.path.join(os.path.dirname(__file__), '..', 'plugins', 'obs_auto_escena', '__init__.py'))
+    'oae', os.path.join(os.path.dirname(__file__), '..', 'funciones', 'obs-escena-automatica', 'obs_auto_escena', '__init__.py'))
 oae = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(oae)
 

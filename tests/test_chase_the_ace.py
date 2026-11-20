@@ -19,7 +19,7 @@ class _Field:
 sys.modules['RHUI'].UIField = _Field
 sys.modules['RHUI'].UIFieldType = type('T', (), {'BASIC_INT': 'int', 'TEXT': 'text'})
 
-spec = importlib.util.spec_from_file_location('ctar', os.path.join(os.path.dirname(__file__), '..', 'plugins', 'chase_the_ace_rank', '__init__.py'))
+spec = importlib.util.spec_from_file_location('ctar', os.path.join(os.path.dirname(__file__), '..', 'funciones', 'chase-the-ace', 'chase_the_ace_rank', '__init__.py'))
 ctar = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ctar)
 

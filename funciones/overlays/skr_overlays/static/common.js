@@ -16,17 +16,21 @@ window.RO = (() => {
       champion_banner: '★ {0} gana el Chase the Ace ★',
       chase_rule: 'Gana el primero en sumar {0} victorias · el resto por menor suma de puestos',
       void: 'carrera nula', podium: 'Podio', still_running: 'La final sigue en juego', sum_short: 'suma', no_data: 'Sin datos',
+      ordinal: 'º', finished: 'Terminó', last: 'Última', best: 'Mejor', next_heat: 'Próximo heat',
+      practice: 'Práctica', seat: 'Puesto',
     },
     en: {
       result: 'Result', round: 'Round', channel: 'Channel', laps: 'Laps', no_laps: 'No laps',
       best_consec: 'Best {0} consec.', best_lap: 'Fastest lap', total_time: 'Total time', lap: 'L',
       pos: 'Pos', pilot: 'Pilot', points: 'Points', pts: 'PTS', heats: 'Heats',
-      flights: 'flights', win: 'win', wins: 'wins', no_wins: 'no wins',
+      flights: 'flights', win: 'win', wins: 'wins', no_wins: 'no wins', aces: 'Aces',
       final_zone: '▲ Finals zone ▲', race: 'Race', races_n: 'Races 1 to {0}', sum: 'Sum',
       chase_title: 'Chase the Ace Final', champion: '★ Champion', one_more: 'One more win takes it',
       champion_banner: '★ {0} wins the Chase the Ace ★',
       chase_rule: 'First to {0} wins takes it · the rest by lowest sum of positions',
       void: 'void race', podium: 'Podium', still_running: 'The final is still on', sum_short: 'sum', no_data: 'No data',
+      ordinal: '', finished: 'Finished', last: 'Last', best: 'Best', next_heat: 'Next heat',
+      practice: 'Practice', seat: 'Seat',
     },
   };
   let lang = (qs.get('lang') || '').toLowerCase();
@@ -59,8 +63,8 @@ window.RO = (() => {
   };
 
   // Consulta el JSON cada "intervalo" ms y llama render(data) solo si cambió.
-  const poll = (url, render) => {
-    const every = num('intervalo', 3000);
+  const poll = (url, render, defaultMs = 3000) => {
+    const every = num('intervalo', defaultMs);
     let last = null;
     const tick = async () => {
       try {

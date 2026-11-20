@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>SKR Overlays · Next heat</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+  body { font-family: "Rajdhani", sans-serif; color: #fff; display: flex; justify-content: center; align-items: center; }
+  body.top { align-items: flex-start; padding-top: 24px; box-sizing: border-box; }
+  #panel { width: 1840px; padding: 26px 32px 30px; box-sizing: border-box; border-radius: 14px;
+           background: rgba(8,12,24,.84); box-shadow: 0 12px 40px rgba(0,0,0,.45); display: none; }
+  #panel.show { display: block; animation: entra .6s ease-out; }
+  @keyframes entra { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+  .head { display: flex; align-items: baseline; gap: 20px; padding-bottom: 14px; margin-bottom: 20px;
+          border-bottom: 3px solid transparent; border-image: linear-gradient(90deg, var(--a), var(--b)) 1; }
+  .lead { font-size: 22px; letter-spacing: .3em; font-weight: 700; color: var(--a); text-transform: uppercase; }
+  .title { font-family: "Orbitron"; font-size: 48px; font-weight: 900; text-transform: uppercase; }
+  .meta { margin-left: auto; font-size: 22px; font-weight: 700; letter-spacing: .08em; color: rgba(255,255,255,.75); text-transform: uppercase; }
+  .cards { display: grid; gap: 18px; }
+  .card { display: flex; flex-direction: column; gap: 14px; padding: 24px 22px; border-radius: 12px;
+          background: rgba(0,10,25,.72); border-left: 8px solid var(--c); min-width: 0; animation: entra .5s ease-out both; }
+  .ch { display: flex; align-items: center; gap: 14px; }
+  .ch small { font-size: 18px; letter-spacing: .14em; font-weight: 700; color: #cfd6e4; text-transform: uppercase; }
+  .ch b { font-family: "Orbitron"; font-size: 70px; font-weight: 900; line-height: 1; color: var(--c); filter: brightness(1.25);
+          text-shadow: 0 0 18px var(--c); }
+  .call { font-family: "Orbitron"; font-size: 40px; font-weight: 900; text-transform: uppercase; white-space: nowrap;
+          overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 12px rgba(0,0,0,.85); }
+  .real { font-size: 24px; font-weight: 600; letter-spacing: .06em; color: rgba(255,255,255,.88); white-space: nowrap;
+          overflow: hidden; text-overflow: ellipsis; }
+  .seat { font-size: 16px; letter-spacing: .14em; color: rgba(255,255,255,.5); font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <div class="head"><span class="lead" id="lead"></span><span class="title" id="title"></span><span class="meta" id="meta"></span></div>
+  <div class="cards" id="cards"></div>
+</div>
+<script src="/skr/static/common.js"></script>
+<script>
+// Parámetros: pos=arriba|centro · nombre=0 (oculta el nombre real) · paleta=2bb5f5-6a5cff · colores=... · lang · intervalo
+const { t, esc, qs } = RO;
+const [A, B] = RO.palette('paleta', ['2bb5f5-6a5cff'])[0];
+document.body.style.setProperty('--a', A);
+document.body.style.setProperty('--b', B || A);
+if ((qs.get('pos') || 'arriba').toLowerCase() !== 'centro') document.body.classList.add('top');
+const SHOW_NAME = qs.get('nombre') !== '0';
+let lastHeat = null;
+
+RO.poll('/skr/carrera.json', (data) => {
+  const panel = document.getElementById('panel');
+  const seats = (data.seats || []).filter((s) => s.active);
+  if (!seats.length) { panel.classList.remove('show'); lastHeat = null; return; }
+  const colors = RO.seatColors(data);
+  document.getElementById('lead').textContent = t('next_heat');
+  document.getElementById('title').textContent = data.heat || t('practice');
+  document.getElementById('meta').textContent = [data.class, data.round ? t('round') + ' ' + data.round : ''].filter(Boolean).join(' · ');
+  const cards = document.getElementById('cards');
+  cards.style.gridTemplateColumns = `repeat(${seats.length}, minmax(0, 1fr))`;
+  cards.innerHTML = seats.map((s, i) => `<div class="card" style="--c:${esc(colors[s.seat % colors.length])};animation-delay:${i * 80}ms">
+      <div class="ch"><small>${t('channel')}</small><b>${esc(s.channel || '—')}</b></div>
+      <div class="call">${esc(s.callsign)}</div>
+      ${SHOW_NAME && s.name && s.name !== s.callsign ? `<div class="real">${esc(s.name)}</div>` : ''}
+      <div class="seat">${t('seat')} ${s.seat + 1}</div>
+    </div>`).join('');
+  const key = data.heat + '|' + seats.map((s) => s.callsign).join(',');
+  if (key !== lastHeat) { panel.classList.remove('show'); void panel.offsetWidth; }
+  lastHeat = key;
+  panel.classList.add('show');
+}, 2000);
+</script>
+</body>
+</html>

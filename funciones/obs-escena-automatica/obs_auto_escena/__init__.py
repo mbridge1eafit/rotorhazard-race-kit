@@ -7,7 +7,7 @@
   con un archivo "<Clase> - <Heat> - R<ronda> <fecha hora>", y la detiene unos segundos después
   de detener la carrera (o al guardar si se guarda antes).
 - Si las vueltas se descartan, el DVR de esa carrera se puede conservar, mover a una subcarpeta,
-  mandar a la papelera o borrar. Eso lo hace el script de OBS `obs/scripts/rotorhazard_dvr.lua`
+  mandar a la papelera o borrar. Eso lo hace el script de OBS `rotorhazard_dvr.lua` (en la carpeta de esta función)
   (corre dentro de OBS, en Windows, macOS o Linux), porque el archivo está en el PC de OBS y no
   en la Raspberry Pi.
 

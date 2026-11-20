@@ -19,14 +19,16 @@ Guía para instalar los plugins en el timer RotorHazard. OBS, los overlays y el 
 
 ## 2. Elegir qué instalar
 
-Todos los plugins son independientes. Instala solo los que vas a usar:
+Cada función es independiente y no necesita otros plugins. Instala solo las que vas a usar:
 
-| Plugin | Lo instalas si… |
-|---|---|
-| `obs_auto_escena` | usas OBS y quieres que cambie de escena o grabe solo |
-| `skr_overlays` | quieres los overlays de última carrera, posiciones, Chase the Ace o podio |
-| `chase_the_ace_rank` | tu final es Chase the Ace (MultiGP) |
-| `orden_heats` | quieres alternar heats de dos o más clases |
+| Función | Plugin | La instalas si… |
+|---|---|---|
+| `obs-escena-automatica` | `obs_auto_escena` | usas OBS y quieres que cambie de escena o grabe solo |
+| `overlays` | `skr_overlays` | quieres overlays para la transmisión (pilotos en vivo, próximo heat, resultados, posiciones, Chase the Ace, podio) |
+| `chase-the-ace` | `chase_the_ace_rank` | tu final es Chase the Ace (MultiGP) |
+| `orden-heats` | `orden_heats` | quieres alternar heats de dos o más clases |
+
+Lista desde la terminal: `./scripts/instalar.sh` (macOS/Linux) o `.\scripts\instalar.ps1` (Windows).
 
 ## 3. Clave SSH (recomendado, una sola vez)
 
@@ -52,7 +54,7 @@ ssh-copy-id -i ~/.ssh/rotorhazard_ed25519.pub pi@192.168.1.20
 
 Prueba: `ssh -i <clave> pi@192.168.1.20 "systemctl is-active rotorhazard"` debe responder `active`.
 
-## 4. Copiar los plugins
+## 4. Instalar las funciones
 
 > El servidor se reinicia al final: hazlo **sin carrera en curso** (timer en READY).
 
@@ -61,41 +63,42 @@ Prueba: `ssh -i <clave> pi@192.168.1.20 "systemctl is-active rotorhazard"` debe 
 Windows (PowerShell, desde la carpeta del repo):
 
 ```powershell
-.\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20 -Clave $env:USERPROFILE\.ssh\rotorhazard_ed25519
+.\scripts\instalar.ps1 -Destino pi@192.168.1.20 -Funciones overlays,obs-escena-automatica -Clave $env:USERPROFILE\.ssh\rotorhazard_ed25519
 ```
 
-Solo algunos: `-Plugins skr_overlays,obs_auto_escena`. Si PowerShell no deja ejecutar scripts:
-`powershell -ExecutionPolicy Bypass -File .\scripts\instalar-plugins.ps1 -Destino pi@192.168.1.20`.
+Todas: `-Funciones todas`. Para ver qué haría sin tocar la Pi: `-Simular`. Si PowerShell no deja ejecutar scripts:
+`powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1 -Destino pi@192.168.1.20 -Funciones overlays`.
 
 macOS / Linux:
 
 ```bash
-SSH_KEY=~/.ssh/rotorhazard_ed25519 ./scripts/instalar-plugins.sh pi@192.168.1.20
+SSH_KEY=~/.ssh/rotorhazard_ed25519 ./scripts/instalar.sh pi@192.168.1.20 overlays obs-escena-automatica
 ```
 
-Solo algunos: `./scripts/instalar-plugins.sh pi@192.168.1.20 skr_overlays obs_auto_escena`.
+Todas: `… pi@192.168.1.20 todas`. Para ver qué haría sin tocar la Pi: `DRY_RUN=1 ./scripts/instalar.sh …`.
+También acepta el nombre del plugin (`skr_overlays`) en vez del de la función.
 
-El script copia cada carpeta a `~/rh-data/plugins/`, guarda la versión anterior en
+El script copia el plugin de cada función a `~/rh-data/plugins/`, guarda la versión anterior en
 `~/rh-plugin-backups/` (fuera de `plugins`, para que RotorHazard no la cargue), reinicia el servicio
-y muestra las líneas del log de los plugins.
+y muestra las líneas del log de los plugins. Algunas funciones tienen un paso más en OBS: está en su README.
 
 ### Opción B — a mano
 
-1. Copia la carpeta del plugin (p. ej. `plugins/skr_overlays`) dentro de `~/rh-data/plugins/` en la Pi,
+1. Copia la carpeta del plugin (p. ej. `funciones/overlays/skr_overlays`) dentro de `~/rh-data/plugins/` en la Pi,
    con `scp -r`, WinSCP, FileZilla (SFTP) o una memoria USB. Debe quedar `~/rh-data/plugins/skr_overlays/__init__.py`.
 2. Reinicia RotorHazard: **Ajustes → Sistema → Reiniciar servidor**, o `sudo systemctl restart rotorhazard`.
 
 ### Opción C — con un agente de IA
 
 Con el MCP configurado ([mcp-server/README.md](../mcp-server/README.md)), pídele:
-*"instala el plugin de la carpeta plugins/skr_overlays y reinicia"* (herramienta `rh_install_plugin_from_file`).
+*"instala la función overlays (carpeta funciones/overlays/skr_overlays) y reinicia"* (herramienta `rh_install_plugin_from_file`).
 
 ## 5. Verificar
 
 - **Ajustes → Plugins**: cada plugin aparece cargado, sin error.
 - Log de la Pi: `journalctl -u rotorhazard -n 100 | grep -i plugin`. Cada plugin escribe una línea al cargar
   (p. ej. `obs_auto_escena: listo`, `skr_overlays: /skr/... listos`).
-- Overlays: abre `http://IP-DE-LA-PI:5000/skr/posiciones?clases=todas` en el navegador.
+- Overlays: abre `http://IP-DE-LA-PI:5000/skr/proximo-heat` en el navegador.
 
 ## 6. Actualizar o desinstalar
 
@@ -109,9 +112,10 @@ Con el MCP configurado ([mcp-server/README.md](../mcp-server/README.md)), pídel
 Si ya tenías estos plugins de antes de que existiera este repo:
 
 - `skr_overlays` 2.0: mismas rutas `/skr/...`, así que las fuentes de OBS no cambian. Lo nuevo:
-  `posiciones` sin `?clases=` muestra la clase del heat actual (antes eran la 2 y la 3), y el podio también
-  está en `/skr/podio` (la ruta vieja `/skr/static/podio.html` sigue funcionando).
-- `obs_auto_escena` 2.0: hay que volver a cargar en OBS el script nuevo `obs/scripts/rotorhazard_dvr.lua`
+  `posiciones` sin `?clases=` muestra la clase del heat actual (antes eran la 2 y la 3), el podio también
+  está en `/skr/podio` (la ruta vieja `/skr/static/podio.html` sigue funcionando), y hay overlays propios de
+  nodos (`/skr/nodos`) y próximo heat (`/skr/proximo-heat`) que reemplazan los de Stream Overlays y su CSS.
+- `obs_auto_escena` 2.0: hay que volver a cargar en OBS el script nuevo `funciones/obs-escena-automatica/rotorhazard_dvr.lua`
   (reemplaza a `skr_escena_al_aire.lua`). La configuración guardada (IP, escenas, carpeta) se conserva.
 - `chase_the_ace_rank` 2.0: el método cambió de nombre visible a *MultiGP Chase the Ace (2026 rules)*,
   pero el identificador interno es el mismo, así que las clases que ya lo usaban lo siguen usando.
