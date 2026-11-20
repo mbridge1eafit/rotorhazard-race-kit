@@ -25,11 +25,12 @@ Reemplaza `PI` por la IP del timer con el puerto (p. ej. `192.168.1.20:5000`).
 | Carrera (en vivo) | `http://PI/skr/nodos` | **El overlay de la carrera**, una sola fuente sobre los 4 cuadros del video: posición, canal, tarjeta con piloto, vuelta, tiempo total, holeshot (S) y cada vuelta, y aviso grande en cada vuelta nueva. | cada 0,5 s |
 | Próximo heat | `http://PI/skr/proximo-heat` | Pilotos del heat actual con su canal grande y su color, para que vayan a los pits a cambiar el VTX. | cada 2 s |
 | Última carrera | `http://PI/skr/ultima-carrera` | Resultado de la última carrera guardada: posición, piloto, canal, vueltas, mejor tiempo y cada vuelta (la más rápida resaltada). | cada 3 s |
+| Próximo + anterior | `http://PI/skr/proximo-y-anterior` | Las dos anteriores en una sola fuente: próximo heat arriba y resultado de la última carrera abajo. | — |
 | Posiciones | `http://PI/skr/posiciones?clases=2,3` | Tablas de una o varias clases lado a lado: posición, piloto, puntos, baterías corridas y victorias, con zona de final. | cada 3 s |
 | Chase the Ace | `http://PI/skr/chase` | Final en curso: Aces (A♠), puesto en cada carrera, suma de puestos y campeón. | cada 3 s |
-| Podio | `http://PI/skr/podio?clase=4` | Podio animado (3.º → 2.º → 1.º, corona y confeti) cuando la final tiene campeón. | cada 4 s |
+| Podio | `http://PI/skr/podio?clase=4` | Podio animado (3.º → 2.º → 1.º, corona y confeti) de **cualquier clase**: por puntos, Chase the Ace, vuelta rápida, consecutivas… | cada 4 s |
 
-Datos en JSON: `/skr/carrera.json` (carrera en curso, para nodos y próximo heat), `/skr/ultima-carrera.json`,
+Datos en JSON: `/skr/carrera.json` (carrera en curso, para nodos y próximo heat), `/skr/ultima-carrera.json`, `/skr/podio.json?clase=…`,
 `/skr/posiciones.json?clases=…` y `/skr/chase.json?clases=…`, por si quieres hacer tu propio diseño.
 
 Cada página es independiente: usa solo las que quieras.
@@ -110,31 +111,52 @@ escena cambia RotorHazard ya pasó al heat siguiente (también con `orden_heats`
 Usa el ranking que tenga la clase en RotorHazard (puntos y victorias si el formato da puntos). Los pilotos que
 todavía no corren salen con "—".
 
-**Chase the Ace** (`chase`) y **Podio** (`podio`)
+**Próximo + anterior** (`proximo-y-anterior`)
 
-| Parámetro | Página | Por defecto | Qué hace |
-|---|---|---|---|
-| `clases` / `clase` | chase / podio | `actual` | la final que se está corriendo, o ids |
-| `aces` | ambas | `2` | victorias para ser campeón (solo si la clase **no** usa el ranking de [chase-the-ace](../chase-the-ace)) |
-| `titulos`, `paleta` | chase | como en posiciones | |
-| `subtitulo` | ambas | "Final Chase the Ace" | texto sobre el título |
-| `titulo` | podio | "PODIO <clase>" | título grande |
-| `fondo` | podio | fondo oscuro animado | `fondo=0` lo deja transparente |
-| `confeti` | podio | sí | `confeti=0` lo quita |
+Recibe los parámetros de las dos páginas (`lang`, `colores`, `nombre`, `paleta`…) y los pasa a ambas; la posición
+está fija: próximo heat arriba, resultado abajo. Con heats de hasta 4 pilotos caben sin taparse; con más, usa las
+dos páginas por separado y ajústalas en OBS.
+
+**Chase the Ace** (`chase`)
+
+| Parámetro | Por defecto | Qué hace |
+|---|---|---|
+| `clases` | `actual` | la final que se está corriendo (sirve para varias finales sin tocar OBS), o ids |
+| `aces` | `2` | victorias para ser campeón (solo si la clase **no** usa el ranking de [chase-the-ace](../chase-the-ace)) |
+| `titulos`, `paleta` | como en posiciones | |
+| `subtitulo` | "Final Chase the Ace" | texto sobre el título |
 
 Sin otros plugins, la tabla calcula lo básico: campeón al primero en N victorias, el resto por menor suma de
 puestos y desempate por la última carrera. Si además instalas la función [chase-the-ace](../chase-the-ace) y la
 clase usa su ranking, toma de ahí las reglas completas de MultiGP 2026 (carreras nulas, Ironman).
+
+**Podio** (`podio`) — sirve para cualquier clase
+
+El orden sale del **ranking de la clase** en RotorHazard (el método que tenga: puntos, Chase the Ace, etc.) y debajo
+de cada piloto van los datos de ese ranking (p. ej. "17 PTS · 4 victorias", "2 victorias · suma 6"). Si la clase
+no tiene ranking, usa sus **resultados** según cómo se gana (vueltas y tiempo, vuelta más rápida o consecutivas).
+Si es una final Chase the Ace sin campeón todavía, muestra "La final sigue en juego".
+
+| Parámetro | Por defecto | Qué hace |
+|---|---|---|
+| `clase` | `actual` | id de la clase (o la del heat actual) |
+| `titulo` | "PODIO <clase>" | título grande, p. ej. `titulo=PODIO%20PRO` |
+| `subtitulo` | el nombre del evento ("Final Chase the Ace" en una final Chase the Ace) | línea de arriba |
+| `modo` | automático | `modo=chase`: Chase the Ace calculado aquí aunque la clase no use el ranking de [chase-the-ace](../chase-the-ace) (con `aces=2`) |
+| `paleta` | azul | `paleta=ffb321-ff6a3d` |
+| `fondo` | fondo oscuro animado | `fondo=0` lo deja transparente para ponerlo sobre otra escena |
+| `confeti` | sí | `confeti=0` lo quita |
 
 ## Ejemplo de escenas
 
 | Escena | Fuentes |
 |---|---|
 | Carrera | captura del VRX + `skr/nodos` encima, del mismo tamaño (no hace falta nada más) |
-| Próximo heat | video de fondo + `skr/proximo-heat` arriba + `skr/ultima-carrera` abajo |
+| Próximo heat | video de fondo + `skr/proximo-y-anterior` (o `skr/proximo-heat` y `skr/ultima-carrera` por separado) |
 | Posiciones | video de fondo + `skr/posiciones?clases=2,3&titulos=PRO,SPORT` |
 | Chase the Ace | video de fondo + `skr/chase` |
-| Podio Pro | `skr/podio?clase=4&titulo=PODIO%20PRO&paleta=ffb321-ff6a3d` |
+| Podio de la final Pro | `skr/podio?clase=4&titulo=PODIO%20PRO&paleta=ffb321-ff6a3d` |
+| Podio del round robin | `skr/podio?clase=2&subtitulo=Round%20Robin` |
 
 Con la función [obs-escena-automatica](../obs-escena-automatica) la escena de carrera entra sola en el
 staging y la de próximo heat al guardar.

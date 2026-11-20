@@ -10,7 +10,8 @@ Desde la base de datos (sobreviven a reinicios):
 /skr/ultima-carrera   Resultado de la última carrera guardada con el tiempo de cada vuelta.
 /skr/posiciones       Tablas de una o varias clases lado a lado. ?clases=2,3 | actual | todas
 /skr/chase            Final Chase the Ace: Aces, puesto en cada carrera y suma. ?clases=actual | 4
-/skr/podio            Podio animado de una final con campeón. ?clase=actual | 4
+/skr/podio            Podio animado de cualquier clase (ranking de la clase o sus resultados). ?clase=actual | 4
+/skr/proximo-y-anterior  Próximo heat arriba y resultado de la última carrera abajo, en una sola página.
 
 Cada página tiene su JSON (<página>.json). Los parámetros de presentación (idioma, colores,
 títulos, zona de final...) van en la URL de la página: ver funciones/overlays/README.md.
@@ -405,6 +406,80 @@ def build_chase(rhapi, class_ids, wins_needed=2):
     return {'classes': out}
 
 
+# Campos de ranking que no se muestran como dato en el podio (ya están en la posición o no aportan)
+PODIUM_SKIP = {'position', 'pilot_id', 'callsign', 'team_name', 'node', 'results', 'last_position', 'status'}
+
+
+def _podium_value(value):
+    if value is None or value == '' or value is False:
+        return None
+    if isinstance(value, float):
+        return round(value, 3)
+    return value
+
+
+def build_podium(rhapi, class_id, mode='auto', wins_needed=2):
+    '''Podio de cualquier clase. Orden: el ranking de la clase (puntos, Chase the Ace o el método que
+    tenga); si la clase no tiene ranking, sus resultados (por tiempo, vuelta rápida o consecutivas).
+    pending = la final Chase the Ace todavía no tiene campeón (el podio espera).'''
+    db = rhapi.db
+    rc = db.raceclass_by_id(class_id) if class_id else None
+    if not rc:
+        return {'class': None, 'podium': [], 'pending': False}
+    try:
+        event = db.option('eventName', '') or ''
+    except Exception:
+        event = ''
+    out = {'class': {'id': rc.id, 'name': rc.name}, 'event': event, 'pending': False, 'chase': False,
+           'source': None, 'podium': []}
+
+    if mode == 'chase':
+        # Chase the Ace aunque la clase no use el ranking de chase_the_ace_rank (cálculo propio)
+        data = build_chase(rhapi, [class_id], wins_needed)['classes']
+        c = data[0] if data else None
+        out.update({'chase': True, 'source': 'chase', 'pending': not (c and c['champion'])})
+        for r in sorted((r for r in (c['pilots'] if c else []) if r['position']), key=lambda r: r['position'])[:3]:
+            stats = [{'key': 'wins', 'value': r['wins']}]
+            if r['sum'] is not None:
+                stats.append({'key': 'position_sum', 'value': r['sum']})
+            out['podium'].append({'position': r['position'], 'callsign': r['callsign'], 'stats': stats})
+        return out
+
+    ranking = db.raceclass_ranking(class_id)
+    rows = _ranking_rows(ranking)
+    meta = (ranking.get('meta') or {}) if isinstance(ranking, dict) else {}
+    if rows:
+        chase = meta.get('chase_the_ace')
+        out['source'] = 'ranking'
+        if chase:
+            out.update({'chase': True, 'pending': not chase.get('champion')})
+        fields = [f for f in (meta.get('rank_fields') or []) if f.get('name') not in PODIUM_SKIP]
+        for r in sorted((r for r in rows if r.get('position')), key=lambda r: r.get('position'))[:3]:
+            stats = []
+            for f in fields:
+                v = _podium_value(r.get(f['name']))
+                if v is not None:
+                    stats.append({'key': f['name'], 'label': f.get('label') or f['name'], 'value': v})
+            out['podium'].append({'position': r.get('position'), 'callsign': r.get('callsign') or '', 'stats': stats})
+        return out
+
+    # sin ranking: resultados de la clase según su condición de victoria
+    results = db.raceclass_results(class_id) or {}
+    primary = (results.get('meta') or {}).get('primary_leaderboard') or 'by_race_time'
+    board = [r for r in (results.get(primary) or []) if r.get('position')]
+    out['source'] = primary
+    for r in sorted(board, key=lambda r: r.get('position'))[:3]:
+        if primary == 'by_consecutives':
+            stats = [{'key': 'consecutives', 'value': r.get('consecutives')}]
+        elif primary == 'by_fastest_lap':
+            stats = [{'key': 'fastest_lap', 'value': r.get('fastest_lap')}]
+        else:
+            stats = [{'key': 'laps', 'value': r.get('laps')}, {'key': 'total_time', 'value': r.get('total_time')}]
+        stats = [x for x in stats if _podium_value(x['value']) is not None]
+        out['podium'].append({'position': r.get('position'), 'callsign': r.get('callsign') or '', 'stats': stats})
+    return out
+
+
 def parse_classes(rhapi, arg, default='actual'):
     '''"2,3" → [2, 3] · "actual" → clase del heat actual · "todas" → todas las clases con heats.'''
     arg = (arg or default).strip().lower()
@@ -482,5 +557,20 @@ def initialize(rhapi):
     def podium_page():
         return page('podio')
 
+    @bp.route(PREFIX + '/podio.json')
+    def podium_json():
+        ids = parse_classes(rhapi, request.args.get('clase'))
+        try:
+            aces = max(1, int(request.args.get('aces') or 2))
+        except ValueError:
+            aces = 2
+        mode = (request.args.get('modo') or 'auto').lower()
+        return reply(lambda: build_podium(rhapi, ids[0] if ids else None, mode, aces), 'el podio')
+
+    @bp.route(PREFIX + '/proximo-y-anterior')
+    def next_and_last_page():
+        return page('proximo-y-anterior')
+
     rhapi.ui.blueprint_add(bp)
-    logger.info('skr_overlays: %s/{nodos,proximo-heat,ultima-carrera,posiciones,chase,podio} listos', PREFIX)
+    logger.info('skr_overlays: %s/{nodos,proximo-heat,ultima-carrera,proximo-y-anterior,posiciones,chase,podio} listos',
+                PREFIX)

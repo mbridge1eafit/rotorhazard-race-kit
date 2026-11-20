@@ -15,7 +15,7 @@ Salió de un evento real de tres días (clasificación, round robin Pro/Sport y 
 | Función | Qué hace | Va en | Requiere |
 |---|---|---|---|
 | [`obs-escena-automatica`](funciones/obs-escena-automatica) | Cambia la escena de OBS al iniciar y terminar cada carrera y graba un video por carrera. | Pi (+ script opcional en OBS) | OBS 28+ en Windows, macOS o Linux |
-| [`overlays`](funciones/overlays) | Overlays propios: el de la carrera sobre los 4 videos (posición, canal, vueltas y aviso de vuelta), próximo heat, última carrera, posiciones, Chase the Ace y podio. Español e inglés. | Pi | OBS (fuente de navegador) |
+| [`overlays`](funciones/overlays) | Overlays propios: el de la carrera sobre los 4 videos (posición, canal, vueltas y aviso de vuelta), próximo heat con el resultado anterior, posiciones de varias clases, Chase the Ace y podio de cualquier clase. Español e inglés. | Pi | OBS (fuente de navegador) |
 | [`chase-the-ace`](funciones/chase-the-ace) | Ranking de clase **MultiGP Chase the Ace** según *2026 MultiGP Rules & Regulations* 7.9.2 (Aces, carreras nulas, suma de puestos, desempate motocross, Ironman). | Pi | — |
 | [`orden-heats`](funciones/orden-heats) | Corre heats de clases distintas en una secuencia fija (Sport 1, Pro 1, Sport 2…) y la genera sola. | Pi | — |
 

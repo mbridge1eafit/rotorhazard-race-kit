@@ -3,10 +3,10 @@
     "name": "SKR Overlays",
     "author": "Mauricio Bridge",
     "author_uri": "https://github.com/mbridge1eafit",
-    "description": "Self-contained OBS overlays (no other plugin needed): the race overlay over the 4 video feeds (position, channel, lap card with holeshot and lap times, lap pop-up), next heat, last race with lap times, standings of several classes, Chase the Ace final table and animated podium. Colors, titles, layout and language (es/en) set by URL.",
+    "description": "Self-contained OBS overlays (no other plugin needed): the race overlay over the 4 video feeds (position, channel, lap card, lap pop-up), next heat and last race (separate or in one page), standings of several classes, Chase the Ace final table and an animated podium for any class. Colors, titles, layout and language (es/en) set by URL.",
     "documentation_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/funciones/overlays",
     "license": "MIT",
     "license_uri": "https://github.com/mbridge1eafit/rotorhazard-race-kit/blob/main/LICENSE",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "required_rhapi_version": "1.2"
 }

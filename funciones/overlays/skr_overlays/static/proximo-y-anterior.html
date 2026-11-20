@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>SKR Overlays · Next heat + last race</title>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; color-scheme: normal; }
+  iframe { position: absolute; inset: 0; width: 1920px; height: 1080px; border: 0; background: transparent; }
+</style>
+</head>
+<body>
+<script>
+// Próximo heat (arriba) + resultado de la última carrera (abajo) en una sola fuente de OBS.
+// Todos los parámetros de la URL pasan a las dos páginas (lang, colores, intervalo, nombre, paleta…);
+// "pos" no: el próximo heat va siempre arriba y el resultado abajo.
+const params = new URLSearchParams(location.search);
+params.delete('pos');
+const q = params.toString();
+for (const [page, pos] of [['ultima-carrera', 'abajo'], ['proximo-heat', 'arriba']]) {
+  const f = document.createElement('iframe');
+  f.src = `/skr/${page}?pos=${pos}${q ? '&' + q : ''}`;
+  f.setAttribute('allowtransparency', 'true');
+  f.title = page;
+  document.body.appendChild(f);
+}
+</script>
+</body>
+</html>

@@ -85,5 +85,38 @@ order, stats, champ, n = skr.chase_basic([{1: 1, 2: 2, 3: 3}, {1: 2, 2: 1, 3: 3}
 check('chase propio: sin campeón todavía', (champ, n), (None, 2))
 check('chase propio: empate en suma y victorias, decide la última', order[:2], [2, 1])
 
+# Podio genérico
+def podium_rhapi(ranking=None, results=None):
+    db = NS(raceclass_by_id=lambda i: NS(id=i, name='Pro - Round Robin'), option=lambda n, d=None: 'Copa 2026',
+            raceclass_ranking=lambda i: ranking, raceclass_results=lambda i: results)
+    return NS(db=db)
+
+
+rank_points = {'ranking': [
+    {'position': 2, 'callsign': 'Bravo', 'points': 14, 'wins': 3, 'last_position': 1},
+    {'position': 1, 'callsign': 'Alfa', 'points': 17, 'wins': 4, 'last_position': 2},
+    {'position': 3, 'callsign': 'Charlie', 'points': 13, 'wins': 3, 'last_position': 3},
+    {'position': 4, 'callsign': 'Delta', 'points': 11, 'wins': 2, 'last_position': 4}],
+    'meta': {'rank_fields': [{'name': 'points', 'label': 'Points'}, {'name': 'wins', 'label': 'Wins'},
+                             {'name': 'last_position', 'label': 'Last race'}]}}
+pod = skr.build_podium(podium_rhapi(rank_points), 2)
+check('podio por puntos: top 3 en orden', [p['callsign'] for p in pod['podium']], ['Alfa', 'Bravo', 'Charlie'])
+check('podio por puntos: datos del ranking', [(x['key'], x['value']) for x in pod['podium'][0]['stats']],
+      [('points', 17), ('wins', 4)])
+check('podio por puntos: no espera campeón', (pod['pending'], pod['chase'], pod['event']), (False, False, 'Copa 2026'))
+
+rank_chase = {'ranking': [{'position': 1, 'callsign': 'Alfa', 'wins': 1, 'position_sum': 3, 'status': ''}],
+              'meta': {'rank_fields': [{'name': 'wins', 'label': 'Aces'}], 'chase_the_ace': {'champion': None}}}
+pod = skr.build_podium(podium_rhapi(rank_chase), 4)
+check('podio chase sin campeón: espera', (pod['pending'], pod['chase']), (True, True))
+
+results_fl = {'meta': {'primary_leaderboard': 'by_fastest_lap'}, 'by_fastest_lap': [
+    {'position': 1, 'callsign': 'Alfa', 'fastest_lap': '0:21.870'},
+    {'position': 2, 'callsign': 'Bravo', 'fastest_lap': '0:22.900'}]}
+pod = skr.build_podium(podium_rhapi(None, results_fl), 2)
+check('podio sin ranking: resultados de la clase', [(p['callsign'], p['stats']) for p in pod['podium']],
+      [('Alfa', [{'key': 'fastest_lap', 'value': '0:21.870'}]), ('Bravo', [{'key': 'fastest_lap', 'value': '0:22.900'}])])
+check('podio sin clase', skr.build_podium(podium_rhapi(), None)['podium'], [])
+
 print('\n{} fallo(s)'.format(fails))
 sys.exit(1 if fails else 0)

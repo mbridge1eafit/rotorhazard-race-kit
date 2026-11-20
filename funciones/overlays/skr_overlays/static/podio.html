@@ -90,8 +90,10 @@
 <canvas id="fx" width="1920" height="1080"></canvas>
 <script src="/skr/static/common.js"></script>
 <script>
-// Parámetros: clase=actual|4 · titulo=... · subtitulo=... · paleta=ffb321-ff6a3d
-//             fondo=0 (transparente, para poner encima de otra escena) · confeti=0 · lang
+// Podio de cualquier clase: usa el ranking de la clase (puntos, Chase the Ace…) o, si no tiene, sus resultados.
+// Parámetros: clase=actual|4 · titulo=... · subtitulo=... (por defecto el nombre del evento, o "Final Chase the Ace")
+//             modo=chase (Chase the Ace aunque la clase no use el ranking de chase_the_ace_rank) · aces=2
+//             paleta=ffb321-ff6a3d · fondo=0 (transparente) · confeti=0 · lang · intervalo
 const { t, esc, qs } = RO;
 const clase = qs.get('clase') || 'actual';
 const [A, B] = RO.palette('paleta', ['2bb5f5-6a5cff'])[0];
@@ -99,24 +101,40 @@ document.body.style.setProperty('--a', A);
 document.body.style.setProperty('--b', B || A);
 if (qs.get('fondo') === '0') document.body.style.background = 'transparent';
 const CONFETTI = qs.get('confeti') !== '0';
+function statText(st) {
+  const v = st.value;
+  switch (st.key) {
+    case 'points': return `${v} ${t('pts')}`;
+    case 'wins': return Number(v) ? `${v} ${Number(v) === 1 ? t('win') : t('wins')}` : t('no_wins');
+    case 'position_sum': return `${t('sum_short')} ${v}`;
+    case 'fastest_lap': return `${t('best_lap')} ${v}`;
+    case 'consecutives': return `${t('consec_short')} ${v}`;
+    case 'laps': return `${v} ${t('laps').toLowerCase()}`;
+    case 'total_time': return String(v);
+    default: return st.label ? `${st.label} ${v}` : String(v);
+  }
+}
 function spot(p, n) {
   if (!p) return `<div class="spot p${n}"></div>`;
-  const wins = p.wins ? `${p.wins} ${p.wins === 1 ? t('win') : t('wins')}` : t('no_wins');
+  const stats = (p.stats || []).slice(0, 3).map(statText).join(' · ');
   return `<div class="spot p${n}">
     <div class="who">${n === 1 ? '<div class="crown">👑</div>' : ''}<div class="medal">${n}</div>
-      <div class="name">${esc(p.callsign)}</div><div class="stat">${wins}${p.sum != null ? ' · ' + t('sum_short') + ' ' + p.sum : ''}</div></div>
+      <div class="name">${esc(p.callsign)}</div><div class="stat">${esc(stats)}</div></div>
     <div class="block">${n}</div></div>`;
 }
-function render(c) {
-  const cat = c.name.split(' - ')[0].toUpperCase();
-  const title = qs.get('titulo') || `${t('podium').toUpperCase()} ${cat}`;
-  if (!c.champion) {
-    document.getElementById('app').innerHTML = `<div class="title"><small style="animation:none;opacity:1">${esc(title)}</small></div><div class="wait">${t('still_running')}</div>`;
+function render(d) {
+  const c = d.class;
+  const cat = c ? c.name.split(' - ')[0].toUpperCase() : '';
+  const title = qs.get('titulo') || `${t('podium').toUpperCase()} ${cat}`.trim();
+  const sub = qs.get('subtitulo') || (d.chase ? t('chase_title') : (d.event || ''));
+  if (!c || d.pending || !(d.podium || []).length) {
+    document.getElementById('app').innerHTML = `<div class="title"><small style="animation:none;opacity:1">${esc(title)}</small></div>
+      <div class="wait">${d.pending ? t('still_running') : t('no_data')}</div>`;
     return;
   }
-  const top = c.pilots.filter((p) => p.position).sort((a, b) => a.position - b.position);
+  const top = d.podium;
   document.getElementById('app').innerHTML = `
-    <div class="title"><small>${esc(qs.get('subtitulo') || t('chase_title'))}</small><h1>${esc(title)}</h1></div>
+    <div class="title"><small>${esc(sub)}</small><h1>${esc(title)}</h1></div>
     <div class="stage">${spot(top[0], 1)}${spot(top[1], 2)}${spot(top[2], 3)}</div>`;
   if (CONFETTI) setTimeout(() => burst(), 4000);
 }
@@ -151,14 +169,15 @@ function loop() {
 }
 loop();
 let shown = '';
+const url = '/skr/podio.json?clase=' + encodeURIComponent(clase) +
+  (qs.get('modo') ? '&modo=' + encodeURIComponent(qs.get('modo')) : '') +
+  (qs.get('aces') ? '&aces=' + encodeURIComponent(qs.get('aces')) : '');
 async function tick() {
   try {
-    const d = await (await fetch('/skr/chase.json?clases=' + encodeURIComponent(clase) + (qs.get('aces') ? '&aces=' + encodeURIComponent(qs.get('aces')) : ''), { cache: 'no-store' })).json();
+    const d = await (await fetch(url, { cache: 'no-store' })).json();
     RO.setLang(d.lang);
-    const c = (d.classes || [])[0];
-    if (!c) return;
-    const key = JSON.stringify([c.name, c.champion, c.pilots.map((p) => [p.callsign, p.position, p.wins, p.sum])]);
-    if (key !== shown) { shown = key; render(c); }
+    const key = JSON.stringify([d.class, d.pending, d.podium]);
+    if (key !== shown) { shown = key; render(d); }
   } catch (e) {}
 }
 tick(); setInterval(tick, RO.num('intervalo', 4000));
