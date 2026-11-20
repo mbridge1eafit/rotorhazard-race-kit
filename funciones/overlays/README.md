@@ -22,7 +22,7 @@ Reemplaza `PI` por la IP del timer con el puerto (p. ej. `192.168.1.20:5000`).
 
 | Página | URL | Qué muestra | Se actualiza |
 |---|---|---|---|
-| Nodos (en vivo) | `http://PI/skr/nodos` | Sobre el video de cada piloto: posición resaltada con el color de su puesto, piloto, canal, vueltas (2/3), última y mejor vuelta, "terminó". Destella en cada vuelta. | cada 0,5 s |
+| Carrera (en vivo) | `http://PI/skr/nodos` | **El overlay de la carrera**, una sola fuente sobre los 4 cuadros del video: posición, canal, tarjeta con piloto, vuelta, tiempo total, holeshot (S) y cada vuelta, y aviso grande en cada vuelta nueva. | cada 0,5 s |
 | Próximo heat | `http://PI/skr/proximo-heat` | Pilotos del heat actual con su canal grande y su color, para que vayan a los pits a cambiar el VTX. | cada 2 s |
 | Última carrera | `http://PI/skr/ultima-carrera` | Resultado de la última carrera guardada: posición, piloto, canal, vueltas, mejor tiempo y cada vuelta (la más rápida resaltada). | cada 3 s |
 | Posiciones | `http://PI/skr/posiciones?clases=2,3` | Tablas de una o varias clases lado a lado: posición, piloto, puntos, baterías corridas y victorias, con zona de final. | cada 3 s |
@@ -55,20 +55,31 @@ Se combinan con `&`: `…/posiciones?clases=2,3&titulos=PRO,SPORT&lang=en`. Para
 | `intervalo` | el de la tabla de arriba (ms entre consultas) | `intervalo=1000` |
 | `colores` | colores de puesto de RotorHazard (Ajustes → LED) | `colores=2a4bff,ff6a1a,22d63a,ff2a6a` |
 
-**Nodos** (`nodos`) — una sola fuente que cubre los cuadros de video de los pilotos
+**Carrera** (`nodos`) — una sola fuente encima de la captura del VRX, del mismo tamaño
+
+En cada cuadro de video:
+
+- **Arriba a la izquierda**, la posición del piloto en un recuadro con el color de su puesto (con brillo que late).
+  Sin posición todavía: "—" atenuado.
+- **Arriba a la derecha**, el canal (R1, F4…) con el color del puesto.
+- **Abajo a la derecha**, la tarjeta: piloto y vuelta actual, tiempo total desde la largada, el holeshot (**S**)
+  y cada vuelta; la última vuelta va resaltada con el color del puesto. Al terminar sale "✓ Terminó".
+- **En el centro**, un aviso grande "VUELTA N · tiempo" unos 3 s cada vez que el piloto completa una vuelta.
+- Los puestos sin piloto se ven atenuados (con su canal), como en la caja de video.
 
 | Parámetro | Por defecto | Qué hace |
 |---|---|---|
 | `nodos` | `1,2,3,4` | puestos que se muestran, en el orden de los cuadros |
 | `disposicion` | `2x2` (`1x1` si hay un solo nodo) | columnas x filas: `2x2` para una caja de 4 cuadrantes, `4x1` en fila, `1x1` para una fuente por piloto |
-| `esquina` | `arriba-izq` | dónde va el recuadro en cada cuadro: `arriba-izq`, `arriba-der`, `abajo-izq`, `abajo-der` |
-| `escala` | `1` | tamaño del recuadro (`0.8`, `1.3`…) |
-| `mostrar` | `pos,canal,vueltas,ultima,mejor` | qué datos se ven |
+| `mostrar` | `pos,canal,tarjeta,aviso` | qué partes se ven |
+| `vueltas` | `4` | cuántas filas de vueltas caben en la tarjeta (las últimas) |
+| `vacios` | sí | `vacios=0` oculta los puestos sin piloto |
+| `escala` | `1` | tamaño de todo (`0.8`, `1.3`…) |
 
 Ejemplos: caja de 4 cuadrantes del VRX → `…/skr/nodos` sobre el video, mismo tamaño. Un piloto por fuente →
-`…/skr/nodos?nodos=3&disposicion=1x1&esquina=abajo-der`.
+`…/skr/nodos?nodos=3&disposicion=1x1`.
 
-Antes de la carrera (y en staging) muestra piloto y canal; la posición y los tiempos aparecen al arrancar.
+Antes de la carrera muestra piloto y canal; la posición y los tiempos aparecen al arrancar.
 
 **Próximo heat** (`proximo-heat`)
 
@@ -119,7 +130,7 @@ clase usa su ranking, toma de ahí las reglas completas de MultiGP 2026 (carrera
 
 | Escena | Fuentes |
 |---|---|
-| Carrera | captura del VRX + `skr/nodos` encima, del mismo tamaño |
+| Carrera | captura del VRX + `skr/nodos` encima, del mismo tamaño (no hace falta nada más) |
 | Próximo heat | video de fondo + `skr/proximo-heat` arriba + `skr/ultima-carrera` abajo |
 | Posiciones | video de fondo + `skr/posiciones?clases=2,3&titulos=PRO,SPORT` |
 | Chase the Ace | video de fondo + `skr/chase` |

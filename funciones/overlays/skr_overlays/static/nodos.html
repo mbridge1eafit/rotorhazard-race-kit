@@ -2,98 +2,152 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>SKR Overlays · Nodes</title>
+<title>SKR Overlays · Race</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
   body { font-family: "Rajdhani", sans-serif; color: #fff; }
   #grid { position: absolute; inset: 0; display: grid; }
-  .cell { position: relative; overflow: hidden; }
-  .hud { position: absolute; display: flex; align-items: flex-start; gap: calc(14px * var(--s)); transform-origin: top left;
-         top: calc(18px * var(--s)); left: calc(18px * var(--s)); }
-  .cell.r .hud { left: auto; right: calc(18px * var(--s)); flex-direction: row-reverse; text-align: right; }
-  .cell.b .hud { top: auto; bottom: calc(18px * var(--s)); align-items: flex-end; }
-  /* posición: recuadro con el color del puesto, brillo que late y reflejo */
-  .pos { min-width: calc(86px * var(--s)); height: calc(86px * var(--s)); padding: 0 calc(10px * var(--s)); box-sizing: border-box;
-         display: grid; place-items: center; border-radius: calc(16px * var(--s));
+  .cell { position: relative; overflow: hidden; --c: #2bb5f5; }
+  .cell.empty { opacity: .55; }
+
+  /* ---- posición (arriba a la izquierda) ---- */
+  .pos { position: absolute; top: calc(16px * var(--s)); left: calc(18px * var(--s));
+         min-width: calc(92px * var(--s)); height: calc(72px * var(--s)); padding: 0 calc(12px * var(--s)); box-sizing: border-box;
+         display: flex; align-items: center; justify-content: center; border-radius: calc(14px * var(--s));
          font-family: "Orbitron"; font-weight: 900; font-size: calc(54px * var(--s)); line-height: 1;
          background:
            linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 45%, transparent 60%) -150% 0 / 250% 100% no-repeat,
-           linear-gradient(135deg, color-mix(in srgb, var(--c) 45%, transparent), rgba(8,12,24,.70) 75%);
+           linear-gradient(135deg, color-mix(in srgb, var(--c) 40%, transparent), rgba(8,12,24,.62) 70%);
          border: calc(3px * var(--s)) solid color-mix(in srgb, var(--c) 85%, white);
          text-shadow: 0 0 14px var(--c), 0 2px 4px rgba(0,0,0,.9); backdrop-filter: blur(4px);
          animation: pulse 2.4s ease-in-out infinite, sheen 3.6s ease-in-out 1s infinite; }
-  .pos sup { font-size: .45em; vertical-align: top; margin-left: 2px; color: color-mix(in srgb, var(--c) 70%, white); text-shadow: none; }
-  .pos.none { opacity: .55; animation: none; }
+  .pos sup { font-size: .5em; line-height: 1; align-self: flex-start; margin-top: .15em; margin-left: 2px;
+             color: color-mix(in srgb, var(--c) 70%, white); text-shadow: none; }
+  .pos.none { opacity: .55; animation: none; background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.25); text-shadow: none; }
   @keyframes pulse { 0%,100% { box-shadow: 0 0 6px 0 color-mix(in srgb, var(--c) 60%, transparent), 0 6px 18px rgba(0,0,0,.45); }
                      50% { box-shadow: 0 0 26px 6px color-mix(in srgb, var(--c) 70%, transparent), 0 6px 18px rgba(0,0,0,.45); } }
   @keyframes sheen { 0% { background-position: -150% 0, 0 0; } 60%,100% { background-position: 250% 0, 0 0; } }
-  .info { display: flex; flex-direction: column; gap: calc(6px * var(--s)); padding: calc(8px * var(--s)) calc(14px * var(--s));
-          border-radius: calc(12px * var(--s)); background: rgba(6,10,22,.72); border-left: calc(5px * var(--s)) solid var(--c); }
-  .cell.r .info { border-left: 0; border-right: calc(5px * var(--s)) solid var(--c); }
-  .name { font-family: "Orbitron"; font-weight: 900; font-size: calc(34px * var(--s)); line-height: 1; text-transform: uppercase;
-          white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,.9); }
-  .line { display: flex; gap: calc(12px * var(--s)); align-items: baseline; font-weight: 700; font-size: calc(20px * var(--s));
-          letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.75); white-space: nowrap; }
-  .cell.r .line { justify-content: flex-end; }
-  .line b { font-family: "Orbitron"; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
-  .ch b { color: var(--c); filter: brightness(1.3); text-shadow: 0 0 10px var(--c); }
-  .laps b { font-size: 1.25em; }
-  .done { color: #ffd23f; }
-  .flash .info { animation: flash .9s ease-out; }
-  @keyframes flash { 0% { background: color-mix(in srgb, var(--c) 70%, rgba(6,10,22,.72)); } 100% { background: rgba(6,10,22,.72); } }
+
+  /* ---- canal (arriba a la derecha) ---- */
+  .ch { position: absolute; top: calc(14px * var(--s)); right: calc(16px * var(--s));
+        padding: calc(4px * var(--s)) calc(14px * var(--s)); border-radius: calc(8px * var(--s));
+        background: rgba(10,14,26,.78); border-right: calc(6px * var(--s)) solid var(--c);
+        font-family: "Orbitron"; font-weight: 900; font-size: calc(44px * var(--s)); line-height: 1.1;
+        color: var(--c); filter: brightness(1.2); text-shadow: 0 0 12px color-mix(in srgb, var(--c) 60%, transparent); }
+
+  /* ---- tarjeta de vueltas (abajo a la derecha) ---- */
+  .card { position: absolute; right: calc(26px * var(--s)); bottom: calc(70px * var(--s)); width: calc(282px * var(--s));
+          border-radius: calc(12px * var(--s)); background: rgba(16,18,28,.86); box-shadow: 0 8px 24px rgba(0,0,0,.45);
+          overflow: hidden; font-variant-numeric: tabular-nums; }
+  .card .head { display: flex; align-items: center; gap: calc(8px * var(--s)); padding: calc(10px * var(--s)) calc(14px * var(--s));
+                border-bottom: calc(3px * var(--s)) solid var(--c); }
+  .card .head b { flex: 1; min-width: 0; font-family: "Orbitron"; font-weight: 800; font-size: calc(22px * var(--s));
+                  text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .head small { font-size: calc(15px * var(--s)); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.85); }
+  .card .head i { font-style: normal; min-width: calc(20px * var(--s)); height: calc(20px * var(--s)); padding: 0 calc(3px * var(--s));
+                  box-sizing: border-box; display: inline-grid; place-items: center; border-radius: calc(4px * var(--s));
+                  font-family: "Orbitron"; font-weight: 900; font-size: calc(17px * var(--s)); color: var(--c); border: calc(2px * var(--s)) solid var(--c); }
+  .card .head i.n { border-color: transparent; }
+  .card .total { padding: calc(10px * var(--s)) calc(14px * var(--s)) calc(6px * var(--s)); text-align: center;
+                 font-family: "Orbitron"; font-weight: 800; font-size: calc(34px * var(--s)); letter-spacing: .02em; }
+  .card .rows { display: flex; flex-direction: column; gap: calc(6px * var(--s)); padding: 0 calc(12px * var(--s)) calc(12px * var(--s)); }
+  .card .row { display: flex; gap: calc(8px * var(--s)); }
+  .card .row span { display: grid; place-items: center; height: calc(38px * var(--s)); border-radius: calc(7px * var(--s));
+                    background: rgba(255,255,255,.08); font-family: "Orbitron"; font-weight: 700; }
+  .card .row span:first-child { width: calc(38px * var(--s)); font-size: calc(16px * var(--s)); }
+  .card .row span:last-child { flex: 1; font-size: calc(22px * var(--s)); }
+  .card .row.last span { background: var(--c); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.55); }
+  .card .row.last span:first-child { background: color-mix(in srgb, var(--c) 85%, black); }
+  .card .done { padding: 0 calc(14px * var(--s)) calc(10px * var(--s)); text-align: center; font-weight: 700;
+                font-size: calc(16px * var(--s)); letter-spacing: .14em; color: #ffd23f; text-transform: uppercase; }
+  .cell.empty .card .head { border-bottom-color: rgba(255,255,255,.2); }
+
+  /* ---- aviso de vuelta (centro) ---- */
+  .pop { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%) scale(.6); opacity: 0;
+         min-width: calc(282px * var(--s)); padding: calc(12px * var(--s)) calc(22px * var(--s)) calc(14px * var(--s)); box-sizing: border-box;
+         border-radius: calc(12px * var(--s)); background: color-mix(in srgb, var(--c) 22%, rgba(16,18,28,.88));
+         border: calc(3px * var(--s)) solid var(--c); box-shadow: 0 0 30px color-mix(in srgb, var(--c) 55%, transparent);
+         text-align: center; pointer-events: none; }
+  .pop small { display: block; font-weight: 700; font-size: calc(20px * var(--s)); letter-spacing: .16em; text-transform: uppercase; }
+  .pop small i { font-style: normal; font-family: "Orbitron"; font-weight: 900; color: var(--c); margin-left: .4em; filter: brightness(1.3); }
+  .pop b { display: block; margin-top: calc(4px * var(--s)); font-family: "Orbitron"; font-weight: 800; font-size: calc(40px * var(--s)); }
+  .pop.show { animation: pop 3.2s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); }
+                   10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                   85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                   100% { opacity: 0; transform: translate(-50%, -50%) scale(.95); } }
 </style>
 </head>
 <body>
 <div id="grid"></div>
 <script src="/skr/static/common.js"></script>
 <script>
-// Parámetros: nodos=1,2,3,4 (puestos, empiezan en 1) · disposicion=2x2 (columnas x filas; 1x1 = un solo nodo)
-//             esquina=arriba-izq|arriba-der|abajo-izq|abajo-der · escala=1 · mostrar=pos,canal,vueltas,ultima,mejor
-//             colores=... · lang · intervalo=500
+// Overlay de carrera: una sola fuente sobre los cuadros de video de los pilotos (2x2 por defecto).
+// Parámetros: nodos=1,2,3,4 (puestos en el orden de los cuadros) · disposicion=2x2 (columnas x filas; 1x1 = un nodo)
+//             mostrar=pos,canal,tarjeta,aviso · vueltas=4 (filas de vueltas en la tarjeta) · vacios=0 (oculta puestos sin piloto)
+//             escala=1 · colores=... · lang · intervalo=500
 const { t, esc, qs } = RO;
 const NODES = (RO.list('nodos') || ['1', '2', '3', '4']).map((n) => Number(n) - 1).filter((n) => n >= 0);
 const [COLS, ROWS] = (qs.get('disposicion') || (NODES.length === 1 ? '1x1' : '2x2')).split('x').map(Number);
-const corner = (qs.get('esquina') || 'arriba-izq').toLowerCase();
-const SHOW = new Set(RO.list('mostrar') || ['pos', 'canal', 'vueltas', 'ultima', 'mejor']);
+const SHOW = new Set(RO.list('mostrar') || ['pos', 'canal', 'tarjeta', 'aviso']);
+const MAX_ROWS = Math.max(1, RO.num('vueltas', 4));
+const SHOW_EMPTY = qs.get('vacios') !== '0';
 const grid = document.getElementById('grid');
 grid.style.gridTemplateColumns = `repeat(${COLS || 2}, 1fr)`;
 grid.style.gridTemplateRows = `repeat(${ROWS || 2}, 1fr)`;
 document.body.style.setProperty('--s', RO.num('escala', 1));
+
+// cada cuadro tiene su contenido (se redibuja) y su aviso de vuelta (se anima aparte)
 const cells = NODES.map(() => {
   const d = document.createElement('div');
-  d.className = 'cell' + (corner.includes('der') || corner.includes('right') ? ' r' : '') + (corner.includes('abajo') || corner.includes('bottom') ? ' b' : '');
+  d.className = 'cell';
+  d.innerHTML = '<div class="body"></div><div class="pop"></div>';
   grid.appendChild(d);
   return d;
 });
-const lastLaps = {};
+const seen = {}; // puesto -> número de pasos por la meta ya mostrados
+
+function lapLabel(n) { return n === 0 ? 'S' : String(n); }
 
 RO.poll('/skr/carrera.json', (data) => {
   const colors = RO.seatColors(data);
-  const racing = data.status === 'racing' || data.status === 'done';
+  const live = data.status === 'racing' || data.status === 'done';
   NODES.forEach((n, i) => {
     const cell = cells[i];
+    const body = cell.querySelector('.body');
     const s = (data.seats || [])[n];
-    if (!s || !s.active) { cell.innerHTML = ''; return; }
+    if (!s || (!s.active && (!SHOW_EMPTY || !s.channel))) { body.innerHTML = ''; return; }
     cell.style.setProperty('--c', colors[n % colors.length]);
-    const pos = s.position ? `<span>${s.position}<sup>${t('ordinal')}</sup></span>` : '—';
-    const lapsTxt = data.laps_to_win ? `${s.laps}/${data.laps_to_win}` : `${s.laps}`;
-    const parts = [];
-    if (SHOW.has('canal') && s.channel) parts.push(`<span class="ch">${t('channel')} <b>${esc(s.channel)}</b></span>`);
-    if (racing && SHOW.has('vueltas')) parts.push(`<span class="laps">${t('laps')} <b>${lapsTxt}</b></span>`);
-    if (racing && s.finished) parts.push(`<span class="done">✓ ${t('finished')}</span>`);
-    const times = [];
-    if (racing && SHOW.has('ultima') && s.last_lap) times.push(`<span>${t('last')} <b>${esc(s.last_lap)}</b></span>`);
-    if (racing && SHOW.has('mejor') && s.fastest_lap) times.push(`<span>${t('best')} <b>${esc(s.fastest_lap)}</b></span>`);
-    cell.innerHTML = `<div class="hud">
-      ${SHOW.has('pos') ? `<div class="pos${s.position ? '' : ' none'}">${pos}</div>` : ''}
-      <div class="info"><div class="name">${esc(s.callsign)}</div>
-        ${parts.length ? `<div class="line">${parts.join('')}</div>` : ''}
-        ${times.length ? `<div class="line">${times.join('')}</div>` : ''}</div></div>`;
-    if (lastLaps[n] !== undefined && s.laps > lastLaps[n]) {
-      cell.classList.remove('flash'); void cell.offsetWidth; cell.classList.add('flash');
+    cell.classList.toggle('empty', !s.active);
+
+    const cross = (live && s.crossings) || [];
+    const pos = live && s.position ? `${s.position}<sup>${t('ordinal')}</sup>` : '—';
+    const lapNo = cross.length && cross[cross.length - 1].lap > 0 ? `<i class="n">${cross[cross.length - 1].lap}</i>` : '<i></i>';
+    const rows = cross.slice(-MAX_ROWS).map((c, k, arr) =>
+      `<div class="row${k === arr.length - 1 && c.lap > 0 ? ' last' : ''}"><span>${lapLabel(c.lap)}</span><span>${esc(c.time)}</span></div>`).join('');
+    body.innerHTML =
+      (SHOW.has('pos') ? `<div class="pos${live && s.position ? '' : ' none'}">${pos}</div>` : '') +
+      (SHOW.has('canal') && s.channel ? `<div class="ch">${esc(s.channel)}</div>` : '') +
+      (SHOW.has('tarjeta') ? `<div class="card">
+          <div class="head"><b>${s.active ? esc(s.callsign) : '—'}</b><small>${t('lap_word')}</small>${lapNo}</div>
+          <div class="total">${cross.length ? esc(s.total) : '—'}</div>
+          ${rows ? `<div class="rows">${rows}</div>` : ''}
+          ${live && s.finished ? `<div class="done">✓ ${t('finished')}</div>` : ''}
+        </div>` : '');
+
+    // aviso de vuelta: solo en vueltas nuevas (no en el holeshot ni al cargar la página)
+    const prev = seen[n];
+    seen[n] = cross.length;
+    if (!live) { seen[n] = 0; return; }
+    if (SHOW.has('aviso') && prev !== undefined && cross.length > prev) {
+      const c = cross[cross.length - 1];
+      if (c.lap > 0) {
+        const pop = cell.querySelector('.pop');
+        pop.innerHTML = `<small>${t('lap_word')}<i>${c.lap}</i></small><b>${esc(c.time)}</b>`;
+        pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
+      }
     }
-    lastLaps[n] = s.laps;
   });
 }, 500);
 </script>

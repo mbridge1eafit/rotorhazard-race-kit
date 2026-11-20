@@ -16,7 +16,7 @@ window.RO = (() => {
       champion_banner: '★ {0} gana el Chase the Ace ★',
       chase_rule: 'Gana el primero en sumar {0} victorias · el resto por menor suma de puestos',
       void: 'carrera nula', podium: 'Podio', still_running: 'La final sigue en juego', sum_short: 'suma', no_data: 'Sin datos',
-      ordinal: 'º', finished: 'Terminó', last: 'Última', best: 'Mejor', next_heat: 'Próximo heat',
+      ordinal: 'º', lap_word: 'Vuelta', finished: 'Terminó', last: 'Última', best: 'Mejor', next_heat: 'Próximo heat',
       practice: 'Práctica', seat: 'Puesto',
     },
     en: {
@@ -29,7 +29,7 @@ window.RO = (() => {
       champion_banner: '★ {0} wins the Chase the Ace ★',
       chase_rule: 'First to {0} wins takes it · the rest by lowest sum of positions',
       void: 'void race', podium: 'Podium', still_running: 'The final is still on', sum_short: 'sum', no_data: 'No data',
-      ordinal: '', finished: 'Finished', last: 'Last', best: 'Best', next_heat: 'Next heat',
+      ordinal: '', lap_word: 'Lap', finished: 'Finished', last: 'Last', best: 'Best', next_heat: 'Next heat',
       practice: 'Practice', seat: 'Seat',
     },
   };

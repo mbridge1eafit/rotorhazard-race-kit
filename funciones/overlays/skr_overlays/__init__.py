@@ -110,6 +110,33 @@ def _ms(value):
     return v if v > 0 else None
 
 
+def fmt_clock(ms):
+    '''31784 -> "0:31.784" (formato de reloj de los overlays de carrera)'''
+    if ms is None:
+        return ''
+    ms = max(0, int(round(float(ms))))
+    return '{}:{:02d}.{:03d}'.format(ms // 60000, (ms // 1000) % 60, ms % 1000)
+
+
+def seat_crossings(rhapi):
+    '''{puesto: [(número de vuelta, ms de la vuelta, ms desde la largada)]} de la carrera en curso.
+    Vuelta 0 = holeshot. Sin las borradas ni las tardías.'''
+    out = {}
+    try:
+        nodes = (rhapi.race.laps or {}).get('node_index') or []
+    except Exception as ex:
+        logger.debug('skr_overlays: sin vueltas: %s', ex)
+        return out
+    for i, node in enumerate(nodes):
+        laps = []
+        for lap in (node or {}).get('laps') or []:
+            if lap.get('deleted') or lap.get('late_lap') or lap.get('lap_number') is None or lap.get('lap_number') < 0:
+                continue
+            laps.append((int(lap['lap_number']), lap.get('lap_time') or 0, lap.get('lap_time_stamp') or 0))
+        out[i] = laps
+    return out
+
+
 def seat_channels(rhapi):
     '''[(etiqueta, MHz)] por puesto según el perfil de frecuencias activo.'''
     out = []
@@ -141,12 +168,14 @@ def build_live(rhapi):
     finished = race.seats_finished or {}
     channels = seat_channels(rhapi)
     show_results = status in ('racing', 'done')
+    crossings = seat_crossings(rhapi) if show_results else {}
 
     seats = []
     for i, pid in enumerate(race.pilots or []):
         pilot = db.pilot_by_id(pid) if pid and pid > 0 else None
         label, freq = channels[i] if i < len(channels) else ('', 0)
         row = rows.get(i) if show_results else None
+        cross = crossings.get(i) or []
         seats.append({
             'seat': i,
             'active': pilot is not None,
@@ -154,11 +183,15 @@ def build_live(rhapi):
             'name': pilot.name if pilot else '',
             'channel': label,
             'frequency': freq,
-            'position': row.get('position') if row and (row.get('laps') or status == 'done') else None,
+            'position': row.get('position') if row and (cross or row.get('laps') or status == 'done') else None,
             'laps': int(row.get('laps') or 0) if row else 0,
             'last_lap': fmt_time(_ms(row.get('last_lap_raw')) / 1000.0) if row and _ms(row.get('last_lap_raw')) else '',
             'fastest_lap': fmt_time(_ms(row.get('fastest_lap_raw')) / 1000.0) if row and _ms(row.get('fastest_lap_raw')) else '',
             'finished': bool(finished.get(i)) if hasattr(finished, 'get') else False,
+            # cada paso por la meta: vuelta (0 = holeshot) y su tiempo; total = tiempo desde la largada
+            'crossings': [{'lap': n, 'time': fmt_clock(t)} for n, t, _ in cross],
+            'lap_number': cross[-1][0] if cross else None,
+            'total': fmt_clock(cross[-1][2]) if cross else '',
         })
     return {
         'status': status,

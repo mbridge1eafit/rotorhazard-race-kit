@@ -38,9 +38,20 @@ def fake_rhapi(status, results):
                 {'b': ['R', 'R', 'F', None], 'c': [1, 2, 4, None], 'f': [5658, 5695, 5800, 5880]})))
     race = NS(status=status, heat=4, round=1, frequencyset=3, pilots=[1, 2, 3, 0],
               raceformat=NS(number_laps_win=3, unlimited_time=0, race_time_sec=120),
-              results=results, seats_finished={1: True})
+              results=results, seats_finished={1: True}, laps=LAPS)
     return NS(db=db, race=race)
 
+
+def lap(n, t, ts, **kw):
+    return dict({'lap_number': n, 'lap_time': t, 'lap_time_stamp': ts, 'deleted': False, 'late_lap': False}, **kw)
+
+
+LAPS = {'node_index': [
+    {'laps': [lap(0, 1383, 1383), lap(1, 22900, 24283), lap(2, 23410, 47693)]},
+    {'laps': [lap(0, 2003, 2003), lap(1, 31784, 33787), lap(None, 5000, 38787, deleted=True), lap(2, 21870, 55657)]},
+    {'laps': []},
+    {'laps': []},
+]}
 
 results = {'meta': {'primary_leaderboard': 'by_race_time'}, 'by_race_time': [
     {'node': 1, 'position': 1, 'laps': 3, 'last_lap_raw': 21870, 'fastest_lap_raw': 21870},
@@ -55,8 +66,14 @@ check('en vivo: puesto vacío', live['seats'][3]['active'], False)
 check('en vivo: posición, vueltas y tiempos', [(s['position'], s['laps'], s['last_lap'], s['fastest_lap']) for s in live['seats'][:3]],
       [(2, 2, '23.410', '22.900'), (1, 3, '21.870', '21.870'), (None, 0, '', '')])
 check('en vivo: terminó', [s['finished'] for s in live['seats']], [False, True, False, False])
+check('en vivo: holeshot y vueltas (sin borradas)', [[(c['lap'], c['time']) for c in s['crossings']] for s in live['seats'][:2]],
+      [[(0, '0:01.383'), (1, '0:22.900'), (2, '0:23.410')], [(0, '0:02.003'), (1, '0:31.784'), (2, '0:21.870')]])
+check('en vivo: tiempo total y vuelta actual', [(s['total'], s['lap_number']) for s in live['seats'][:3]],
+      [('0:47.693', 2), ('0:55.657', 2), ('', None)])
+check('reloj: minutos', skr.fmt_clock(125004), '2:05.004')
 ready = skr.build_live(fake_rhapi(0, results))
-check('antes de la carrera: sin posiciones', [s['position'] for s in ready['seats']], [None] * 4)
+check('antes de la carrera: sin posiciones ni vueltas', ([s['position'] for s in ready['seats']], [s['crossings'] for s in ready['seats']]),
+      ([None] * 4, [[]] * 4))
 check('antes de la carrera: pilotos y canal (próximo heat)', [(s['callsign'], s['channel']) for s in ready['seats'] if s['active']],
       [('Alfa', 'R1'), ('Bravo', 'R2'), ('Charlie', 'F4')])
 
